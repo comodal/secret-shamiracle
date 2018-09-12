@@ -175,6 +175,6 @@ final class ShamirShareTest {
     }
 
     final var shares = Shamir.createShares(prime, secrets, 5);
-    Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares);
+    assertEquals(10, Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares));
   }
 }

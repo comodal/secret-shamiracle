@@ -1,0 +1,4 @@
+rootProject.name = 'shamiracle'
+
+include 'systems.comodal.shamir'
+project(':systems.comodal.shamir').name = 'shamir'

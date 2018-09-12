@@ -1,6 +1,6 @@
 # secret-shamiracle [![Build Status](https://travis-ci.org/comodal/secret-shamiracle.svg?branch=master)](https://travis-ci.org/comodal/secret-shamiracle) [![Download](https://api.bintray.com/packages/comodal/libraries/shamir/images/download.svg)](https://bintray.com/comodal/libraries/shamir/_latestVersion) [![codecov](https://codecov.io/gh/comodal/secret-shamiracle/branch/master/graph/badge.svg)](https://codecov.io/gh/comodal/secret-shamiracle) [![License](http://img.shields.io/badge/license-Apache--2-blue.svg?style=flat)](LICENSE)
 
-> Simple builder and utility functions for creating Shamir secret shares and reconstructing/interpolating the original secret.
+> Simple builder and utility functions for creating Shamir secret shares and reconstructing the original secret.
 
 ### Credits
 * [Shamir secret sharing wiki](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing#Shamir's_secret-sharing_scheme)

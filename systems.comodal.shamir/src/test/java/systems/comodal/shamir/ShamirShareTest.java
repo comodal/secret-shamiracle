@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -17,7 +18,11 @@ final class ShamirShareTest {
         .mersennePrimeExponent(521);
     sharesBuilder.validatePrime();
 
-    for (int numShares = 64; numShares >= 63; numShares--) {
+    int numShares = 64;
+    final var sharePositions = IntStream.rangeClosed(1, numShares).mapToObj(BigInteger::valueOf).toArray(BigInteger[]::new);
+    final var shareMap = new HashMap<BigInteger, BigInteger>(numShares);
+
+    for (; numShares >= 63; numShares--) {
       sharesBuilder.numShares(numShares);
       for (int requiredShares = 1; requiredShares <= numShares; requiredShares++) {
         sharesBuilder
@@ -26,14 +31,14 @@ final class ShamirShareTest {
 
         final var shares = sharesBuilder.createShares();
 
-        final var shareMap = new HashMap<BigInteger, BigInteger>(sharesBuilder.getNumRequiredShares());
         ThreadLocalRandom.current().ints(0, sharesBuilder.getNumShares())
             .distinct()
             .limit(sharesBuilder.getNumRequiredShares())
-            .forEach(i -> shareMap.put(BigInteger.valueOf(i + 1), shares[i]));
+            .forEach(i -> shareMap.put(sharePositions[i], shares[i]));
 
         final var reconstructedSecret = Shamir.reconstructSecret(shareMap, sharesBuilder.getPrime());
         assertEquals(sharesBuilder.getSecret(), reconstructedSecret, sharesBuilder::toString);
+        shareMap.clear();
 
         assertNull(sharesBuilder.clearSecrets().getSecret());
       }
@@ -41,7 +46,7 @@ final class ShamirShareTest {
   }
 
   @Test
-  void testShareSuperSet() {
+  void testShareCombinations() {
     final var sharesBuilder = Shamir.buildShares()
         .mersennePrimeExponent(521)
         .numRequiredShares(5)

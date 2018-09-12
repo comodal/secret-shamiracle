@@ -101,13 +101,17 @@ final class ShamirShareTest {
 
   @Test
   void testInvalidPrimes() {
+    final var invalidPrime = BigInteger.valueOf(2147483647L - 1);
     final var sharesBuilder = Shamir.buildShares()
-        .prime(BigInteger.valueOf(2147483647L - 1))
-        .numRequiredShares(3)
-        .numShares(7)
+        .prime(invalidPrime)
+        .numRequiredShares(2)
+        .numShares(8)
         .secureRandom(new SecureRandom());
 
+    assertEquals(invalidPrime, sharesBuilder.getPrime());
     assertNull(sharesBuilder.getSecret());
+    assertEquals(2, sharesBuilder.getNumRequiredShares());
+    assertEquals(8, sharesBuilder.getNumShares());
 
     assertThrows(IllegalStateException.class, sharesBuilder::validatePrime, () -> "Should have failed, supplied an invalid prime " + sharesBuilder.getPrime());
     assertThrows(IllegalStateException.class, () -> sharesBuilder.validateAndSetPrime(sharesBuilder.getPrime()), () -> "Should have failed, supplied an invalid prime " + sharesBuilder.getPrime());

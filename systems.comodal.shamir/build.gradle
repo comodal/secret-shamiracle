@@ -128,6 +128,7 @@ afterEvaluate {
       websiteUrl = project.vcsUrl
       issueTrackerUrl = project.vcsUrl + '/issues'
       licenses = ["Apache-2.0"]
+      publish = true
       version {
         name = project.version
         vcsTag = project.name + '-' + project.version

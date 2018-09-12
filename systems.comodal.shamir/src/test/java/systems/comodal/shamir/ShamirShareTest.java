@@ -199,6 +199,7 @@ final class ShamirShareTest {
         .numShares(12)
         .initSecrets(secret);
 
+    sharesBuilder.validatePrime();
     final var shares = sharesBuilder.createShares();
     sharesBuilder.validateShareCombinations(shares);
 

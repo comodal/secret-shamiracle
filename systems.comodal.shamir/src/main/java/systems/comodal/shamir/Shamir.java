@@ -79,26 +79,24 @@ public final class Shamir {
                                               final BigInteger prime,
                                               final int numRequiredShares,
                                               final BigInteger[] shares) {
-    final var positions = IntStream.rangeClosed(1, shares.length).mapToObj(BigInteger::valueOf).toArray(BigInteger[]::new);
-    return Shamir.shareCombinations(shares, 0, numRequiredShares, new Map.Entry[numRequiredShares], expectedSecret, prime, positions);
+    final var points = IntStream.range(0, shares.length).mapToObj(i -> Map.entry(BigInteger.valueOf(i + 1), shares[i])).toArray(Map.Entry[]::new);
+    return Shamir.shareCombinations(points, 0, numRequiredShares, new Map.Entry[numRequiredShares], expectedSecret, prime);
   }
 
-  private static int shareCombinations(final BigInteger[] shares,
+  private static int shareCombinations(final Map.Entry<BigInteger, BigInteger>[] points,
                                        final int startPos,
                                        final int len,
                                        final Map.Entry<BigInteger, BigInteger>[] result,
                                        final BigInteger expectedSecret,
-                                       final BigInteger prime,
-                                       final BigInteger[] cachedPositions) {
+                                       final BigInteger prime) {
     if (len == 0) {
       validateReconstruction(expectedSecret, prime, Map.ofEntries(result));
       return 1;
     }
     int numSubSets = 0;
-    for (int i = startPos; i <= shares.length - len; i++) {
-      final int r = result.length - len;
-      result[r] = Map.entry(cachedPositions[i], shares[i]);
-      numSubSets += shareCombinations(shares, i + 1, len - 1, result, expectedSecret, prime, cachedPositions);
+    for (int i = startPos; i <= points.length - len; i++) {
+      result[result.length - len] = points[i];
+      numSubSets += shareCombinations(points, i + 1, len - 1, result, expectedSecret, prime);
     }
     return numSubSets;
   }

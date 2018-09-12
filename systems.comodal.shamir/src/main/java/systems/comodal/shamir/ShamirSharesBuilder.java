@@ -43,10 +43,10 @@ public final class ShamirSharesBuilder {
     return this;
   }
 
-  public ShamirSharesBuilder marsennePrimeExponent(final int marsennePrimeExponent) {
+  public ShamirSharesBuilder mersennePrimeExponent(final int mersennePrimeExponent) {
     // https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes
     // 13th Mersenne Prime = 521
-    this.prime = BigInteger.ONE.shiftLeft(marsennePrimeExponent).subtract(BigInteger.ONE);
+    this.prime = BigInteger.ONE.shiftLeft(mersennePrimeExponent).subtract(BigInteger.ONE);
     return this;
   }
 

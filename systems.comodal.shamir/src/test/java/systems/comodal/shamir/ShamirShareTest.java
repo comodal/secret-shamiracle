@@ -14,7 +14,7 @@ final class ShamirShareTest {
 
   @Test
   void testShareCreationAndReconstruction() {
-    final var sharesBuilder = Shamir.buildShares().marsennePrimeExponent(521);
+    final var sharesBuilder = Shamir.buildShares().mersennePrimeExponent(521);
     for (int numShares = 64; numShares >= 63; numShares--) {
       sharesBuilder.numShares(numShares);
       for (int requiredShares = 1; requiredShares <= numShares; requiredShares++) {

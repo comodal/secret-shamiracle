@@ -4,8 +4,8 @@
 
 ```java
 var sharesBuilder = Shamir.buildShares()
-  // Set marsenne prime: https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes
-  .marsennePrimeExponent(521)
+  // Set mersenne prime: https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes
+  .mersennePrimeExponent(521)
   //.prime(prime) Or bring your own prime.
   .numShares(4)
   .numRequiredShares(2)

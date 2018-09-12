@@ -132,7 +132,7 @@ public final class ShamirSharesBuilder {
       throw new IllegalStateException(String.format("Share map should have exactly %d shares, but found %d.%n%s", numRequiredShares, shareMap.size(), shareMap));
     }
     if (!expectedSecret.equals(reconstructedSecret)) {
-      throw new IllegalStateException(String.format("Reconstructed secret does not equal expected secret. %nReconstructed: '%s' %Expected: '%s' %nWith %d shares: %n%s",
+      throw new IllegalStateException(String.format("Reconstructed secret does not equal expected secret. %nReconstructed: '%s' %nExpected: '%s' %nWith %d shares: %n%s",
           reconstructedSecret, expectedSecret, shareMap.size(), shareMap));
     }
   }

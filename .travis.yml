@@ -35,7 +35,10 @@ jobs:
       name: "Build and Test"
       script:
       - ./gradlew check
-      
+      - ./gradlew jacocoTestReport
+      after_success:
+      - bash <(curl -s https://codecov.io/bash)
+
     - stage: publish
       name: "Publish to Bintray"
       script:

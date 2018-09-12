@@ -44,7 +44,7 @@ sharesBuilder.validatePrime();
 // The array index corresponds to the x-axis position minus one.  Each value is the y-axis value.
 var shares = sharesBuilder.createShares();
 
-// Validate secret reconstruction for all combinations of size 'numRequiredShares'.
+// Validate secret reconstruction for all share combinations of size 'numRequiredShares'.
 // Throws an IllegalStateException if any reconstructed secret does not equal the original.
 sharesBuilder.validateShareCombinations(shares);
 

@@ -63,7 +63,7 @@ public final class ShamirSharesBuilder {
 
   private static void validatePrime(final BigInteger prime) {
     if (!prime.isProbablePrime(Integer.MAX_VALUE)) {
-      throw new IllegalStateException("This is probably not a prime number using a certainty of Integer.MAX_VALUE: " + prime);
+      throw new IllegalStateException("This is not a prime number: " + prime);
     }
   }
 

@@ -6,7 +6,11 @@
 * [Shamir secret sharing wiki](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing#Shamir's_secret-sharing_scheme)
 * Credit to Stackoverflow user [JerzySkalski](https://stackoverflow.com/users/4513021/jerzyskalski) for providing a [working example](https://stackoverflow.com/a/34365904/3754157) which limits the finite field with prime modulus division.
 
-### Usage
+### Components
+* [Shamir.java](../blob/master/systems.comodal.shamir/src/main/java/systems/comodal/shamir/Shamir.java#L7): Minimal static methods to facilitate the creation of shares and the reconstruction of a secret.
+* [ShamirSharesBuilder.java](../blob/master/systems.comodal.shamir/src/main/java/systems/comodal/shamir/ShamirSharesBuilder.java#L12): A mutable builder to help coordinate the state needed to create and validate shares for a Shamir secret-sharing scheme.
+
+### Shares Builder Usage
 
 #### Required Fields
 
@@ -40,7 +44,7 @@ sharesBuilder.validatePrime();
 // The array index corresponds to the x-axis position minus one.  Each value is the y-axis value.
 var shares = sharesBuilder.createShares();
 
-// Validate secret reconstruction for all combinations of size required shares.
+// Validate secret reconstruction for all combinations of size 'numRequiredShares'.
 sharesBuilder.validateShareCombinations(shares);
 
 // Free references to BigInteger secrets... Data may continue to exist in system memory.

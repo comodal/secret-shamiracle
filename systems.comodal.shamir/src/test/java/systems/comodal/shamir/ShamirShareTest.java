@@ -145,6 +145,20 @@ final class ShamirShareTest {
   }
 
   @Test
+  void testChangeNumRequiredShares() {
+    final var sharesBuilder = Shamir.buildShares().mersennePrimeExponent(4_253);
+    assertEquals(0, sharesBuilder.getNumRequiredShares());
+    assertEquals(1, sharesBuilder.numRequiredShares(1).getNumRequiredShares());
+
+    assertNull(sharesBuilder.getSecret());
+    sharesBuilder.initSecrets();
+    assertNotNull(sharesBuilder.getSecret());
+
+    assertEquals(0, sharesBuilder.numRequiredShares(0).getNumRequiredShares());
+    assertNull(sharesBuilder.getSecret());
+  }
+
+  @Test
   void testStaticShamirMethods() {
     final var secureRandom = new SecureRandom();
 

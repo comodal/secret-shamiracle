@@ -30,7 +30,7 @@ public final class ShamirSharesBuilder {
   }
 
   public BigInteger getSecret() {
-    return secrets == null ? null : secrets[0];
+    return secrets == null || secrets.length == 0 ? null : secrets[0];
   }
 
   public ShamirSharesBuilder secureRandom(final Random secureRandom) {

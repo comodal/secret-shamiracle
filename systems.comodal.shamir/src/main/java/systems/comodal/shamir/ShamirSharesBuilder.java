@@ -58,16 +58,16 @@ public final class ShamirSharesBuilder {
     return this;
   }
 
-  private static void validatePrime(final BigInteger prime) {
-    if (!prime.isProbablePrime(Integer.MAX_VALUE)) {
-      throw new IllegalStateException("This is probably not a prime number using a certainty of Integer.MAX_VALUE: " + prime);
-    }
-  }
-
   public ShamirSharesBuilder validateAndSetPrime(final BigInteger prime) {
     validatePrime(prime);
     this.prime = prime;
     return this;
+  }
+
+  private static void validatePrime(final BigInteger prime) {
+    if (!prime.isProbablePrime(Integer.MAX_VALUE)) {
+      throw new IllegalStateException("This is probably not a prime number using a certainty of Integer.MAX_VALUE: " + prime);
+    }
   }
 
   public ShamirSharesBuilder numShares(final int numShares) {
@@ -81,8 +81,8 @@ public final class ShamirSharesBuilder {
   }
 
   public ShamirSharesBuilder initSecrets(final BigInteger secret) {
-    if (secret.compareTo(prime) >= 0) {
-      throw new IllegalArgumentException("Secret must be less than the prime " + prime);
+    if (secret.compareTo(BigInteger.ZERO) <= 0 || secret.compareTo(prime) >= 0) {
+      throw new IllegalArgumentException("Secret must be greater than 0 and less than the prime " + prime);
     }
     if (secureRandom == null) {
       this.secureRandom = new SecureRandom();
@@ -143,12 +143,12 @@ public final class ShamirSharesBuilder {
     return shareCombinations(shares, 0, numRequiredShares, new Map.Entry[numRequiredShares], secrets[0], positions);
   }
 
-  int shareCombinations(final BigInteger[] shares,
-                        final int startPos,
-                        final int len,
-                        final Map.Entry<BigInteger, BigInteger>[] result,
-                        final BigInteger expectedSecret,
-                        final BigInteger[] cachedPositions) {
+  private int shareCombinations(final BigInteger[] shares,
+                                final int startPos,
+                                final int len,
+                                final Map.Entry<BigInteger, BigInteger>[] result,
+                                final BigInteger expectedSecret,
+                                final BigInteger[] cachedPositions) {
     if (len == 0) {
       validateReconstruction(expectedSecret, Map.ofEntries(result));
       return 1;

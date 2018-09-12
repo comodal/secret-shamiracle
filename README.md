@@ -37,7 +37,7 @@ sharesBuilder.validatePrime();
 
 // Shares are provided as an Array of BigIntegers to the user.
 // Each array value and its index is a coordinate in the system.
-// The array index correspondes to the x-axis position minus one.  Each value is the y-axis value.
+// The array index corresponds to the x-axis position minus one.  Each value is the y-axis value.
 var shares = sharesBuilder.createShares();
 
 // Validate secret reconstruction for all combinations of shares.

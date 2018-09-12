@@ -127,10 +127,10 @@ public final class ShamirSharesBuilder {
 
   private void validateReconstruction(final BigInteger expectedSecret,
                                       final Map<BigInteger, BigInteger> shareMap) {
-    final var reconstructedSecret = reconstructSecret(shareMap, prime);
     if (shareMap.size() != numRequiredShares) {
       throw new IllegalStateException(String.format("Share map should have exactly %d shares, but found %d.%n%s", numRequiredShares, shareMap.size(), shareMap));
     }
+    final var reconstructedSecret = reconstructSecret(shareMap, prime);
     if (!expectedSecret.equals(reconstructedSecret)) {
       throw new IllegalStateException(String.format("Reconstructed secret does not equal expected secret. %nReconstructed: '%s' %nExpected: '%s' %nWith %d shares: %n%s",
           reconstructedSecret, expectedSecret, shareMap.size(), shareMap));

@@ -18,6 +18,7 @@ final class ShamirShareTest {
 
     sharesBuilder.validatePrime();
     assertNull(sharesBuilder.getSecret());
+    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
 
     int numShares = 64;
     final var sharePositions = IntStream.rangeClosed(1, numShares).mapToObj(BigInteger::valueOf).toArray(BigInteger[]::new);
@@ -62,6 +63,7 @@ final class ShamirShareTest {
     assertNotNull(sharesBuilder.getSecret());
     assertEquals(5, sharesBuilder.getNumRequiredShares());
     assertEquals(10, sharesBuilder.getNumShares());
+    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
 
     final var shares = sharesBuilder.createShares();
     // n!  / (r! * (n  - r)!)
@@ -74,6 +76,7 @@ final class ShamirShareTest {
     assertThrows(IllegalStateException.class, () -> sharesBuilder.validateShareCombinations(shares));
 
     assertNull(sharesBuilder.clearSecret(0).getSecret());
+    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
   }
 
   @Test
@@ -90,6 +93,7 @@ final class ShamirShareTest {
     assertNull(sharesBuilder.getSecret());
     assertEquals(3, sharesBuilder.getNumRequiredShares());
     assertEquals(7, sharesBuilder.getNumShares());
+    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
 
     assertThrows(IllegalArgumentException.class, () -> sharesBuilder.initSecrets(sharesBuilder.getPrime()), "Should have failed with a secret equal to prime.");
     assertThrows(IllegalArgumentException.class, () -> sharesBuilder.initSecrets(sharesBuilder.getPrime().add(BigInteger.TWO)), "Should have failed with a secret > prime.");
@@ -112,6 +116,7 @@ final class ShamirShareTest {
     assertNull(sharesBuilder.getSecret());
     assertEquals(2, sharesBuilder.getNumRequiredShares());
     assertEquals(8, sharesBuilder.getNumShares());
+    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
 
     assertThrows(IllegalStateException.class, sharesBuilder::validatePrime, () -> "Should have failed, supplied an invalid prime " + sharesBuilder.getPrime());
     assertThrows(IllegalStateException.class, () -> sharesBuilder.validateAndSetPrime(sharesBuilder.getPrime()), () -> "Should have failed, supplied an invalid prime " + sharesBuilder.getPrime());
@@ -126,6 +131,7 @@ final class ShamirShareTest {
     for (int exponent : exponents) {
       sharesBuilder.mersennePrimeExponent(exponent).validatePrime();
     }
+    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
   }
 
   @Test
@@ -135,5 +141,21 @@ final class ShamirShareTest {
     assertNull(sharesBuilder.getPrime());
     assertEquals(0, sharesBuilder.getNumRequiredShares());
     assertEquals(0, sharesBuilder.getNumShares());
+    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
+  }
+
+  @Test
+  void testStaticShamirMethods() {
+    final var secureRandom = new SecureRandom();
+    final var prime = BigInteger.valueOf(73_939_133);
+    assertTrue(prime.isProbablePrime(Integer.MAX_VALUE));
+    final int numRequired = 3;
+    final var secrets = Shamir.createSecrets(secureRandom, prime, numRequired);
+    assertEquals(numRequired, secrets.length);
+    for (final var secret : secrets) {
+      assertNotNull(secret);
+      assertTrue(secret.compareTo(prime) < 0, secret::toString);
+      assertTrue(secret.compareTo(BigInteger.ZERO) > 0, secret::toString);
+    }
   }
 }

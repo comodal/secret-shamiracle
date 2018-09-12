@@ -73,8 +73,14 @@ public final class ShamirSharesBuilder {
   }
 
   public ShamirSharesBuilder numRequiredShares(final int numRequiredShares) {
-    if (secrets == null || secrets.length != numRequiredShares) {
-      secrets = new BigInteger[numRequiredShares];
+    if (secrets == null) {
+      this.secrets = new BigInteger[numRequiredShares];
+      return this;
+    }
+    if (secrets.length != numRequiredShares) {
+      final var newSecretsArray = new BigInteger[numRequiredShares];
+      System.arraycopy(secrets, 0, newSecretsArray, 0, Math.min(secrets.length, numRequiredShares));
+      this.secrets = newSecretsArray;
     }
     return this;
   }

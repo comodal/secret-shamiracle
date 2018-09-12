@@ -14,7 +14,6 @@ public final class ShamirSharesBuilder {
   private SecureRandom secureRandom;
   private BigInteger prime;
   private int numShares;
-  private int numRequiredShares;
   private BigInteger[] secrets;
 
   ShamirSharesBuilder() {
@@ -29,7 +28,7 @@ public final class ShamirSharesBuilder {
   }
 
   public int getNumRequiredShares() {
-    return numRequiredShares;
+    return secrets == null ? 0 : secrets.length;
   }
 
   public BigInteger getSecret() {
@@ -76,7 +75,9 @@ public final class ShamirSharesBuilder {
   }
 
   public ShamirSharesBuilder numRequiredShares(final int numRequiredShares) {
-    this.numRequiredShares = numRequiredShares;
+    if (secrets == null || secrets.length != numRequiredShares) {
+      secrets = new BigInteger[numRequiredShares];
+    }
     return this;
   }
 
@@ -102,11 +103,8 @@ public final class ShamirSharesBuilder {
   }
 
   private void initSecretsUnchecked(final BigInteger secret) {
-    if (secrets == null || secrets.length != numRequiredShares) {
-      secrets = new BigInteger[numRequiredShares];
-    }
     secrets[0] = secret;
-    for (int i = 1; i < numRequiredShares; i++) {
+    for (int i = 1; i < secrets.length; i++) {
       secrets[i] = createSecret(secureRandom, prime);
     }
   }
@@ -127,8 +125,8 @@ public final class ShamirSharesBuilder {
 
   private void validateReconstruction(final BigInteger expectedSecret,
                                       final Map<BigInteger, BigInteger> shareMap) {
-    if (shareMap.size() != numRequiredShares) {
-      throw new IllegalStateException(String.format("Share map should have exactly %d shares, but found %d.%n%s", numRequiredShares, shareMap.size(), shareMap));
+    if (shareMap.size() != secrets.length) {
+      throw new IllegalStateException(String.format("Share map should have exactly %d shares, but found %d.%n%s", secrets.length, shareMap.size(), shareMap));
     }
     final var reconstructedSecret = reconstructSecret(shareMap, prime);
     if (!expectedSecret.equals(reconstructedSecret)) {
@@ -140,7 +138,7 @@ public final class ShamirSharesBuilder {
   @SuppressWarnings("unchecked")
   public int validateShareCombinations(final BigInteger[] shares) {
     final var positions = IntStream.rangeClosed(1, numShares).mapToObj(BigInteger::valueOf).toArray(BigInteger[]::new);
-    return shareCombinations(shares, 0, numRequiredShares, new Map.Entry[numRequiredShares], secrets[0], positions);
+    return shareCombinations(shares, 0, secrets.length, new Map.Entry[secrets.length], secrets[0], positions);
   }
 
   private int shareCombinations(final BigInteger[] shares,
@@ -167,7 +165,7 @@ public final class ShamirSharesBuilder {
     return "{\"_class\":\"ShamirSharesBuilder\", " +
         "\"prime\":" + (prime == null ? "null" : prime) + ", " +
         "\"numShares\":\"" + numShares + "\"" + ", " +
-        "\"numRequiredShares\":\"" + numRequiredShares + "\"" + ", " +
+        "\"numRequiredShares\":\"" + getNumRequiredShares() + "\"" + ", " +
         "\"secrets\":" + Arrays.toString(secrets) + "}";
   }
 }

@@ -3,11 +3,8 @@ package systems.comodal.shamir;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.IntStream;
 
 import static systems.comodal.shamir.Shamir.createSecret;
-import static systems.comodal.shamir.Shamir.reconstructSecret;
 
 public final class ShamirSharesBuilder {
 
@@ -123,41 +120,9 @@ public final class ShamirSharesBuilder {
     return Shamir.createShares(prime, secrets, numShares);
   }
 
-  private void validateReconstruction(final BigInteger expectedSecret,
-                                      final Map<BigInteger, BigInteger> shareMap) {
-    if (shareMap.size() != secrets.length) {
-      throw new IllegalStateException(String.format("Share map should have exactly %d shares, but found %d.%n%s", secrets.length, shareMap.size(), shareMap));
-    }
-    final var reconstructedSecret = reconstructSecret(shareMap, prime);
-    if (!expectedSecret.equals(reconstructedSecret)) {
-      throw new IllegalStateException(String.format("Reconstructed secret does not equal expected secret. %nReconstructed: '%s' %nExpected: '%s' %nWith %d shares: %n%s",
-          reconstructedSecret, expectedSecret, shareMap.size(), shareMap));
-    }
-  }
-
   @SuppressWarnings("unchecked")
   public int validateShareCombinations(final BigInteger[] shares) {
-    final var positions = IntStream.rangeClosed(1, numShares).mapToObj(BigInteger::valueOf).toArray(BigInteger[]::new);
-    return shareCombinations(shares, 0, secrets.length, new Map.Entry[secrets.length], secrets[0], positions);
-  }
-
-  private int shareCombinations(final BigInteger[] shares,
-                                final int startPos,
-                                final int len,
-                                final Map.Entry<BigInteger, BigInteger>[] result,
-                                final BigInteger expectedSecret,
-                                final BigInteger[] cachedPositions) {
-    if (len == 0) {
-      validateReconstruction(expectedSecret, Map.ofEntries(result));
-      return 1;
-    }
-    int numSubSets = 0;
-    for (int i = startPos; i <= shares.length - len; i++) {
-      final int r = result.length - len;
-      result[r] = Map.entry(cachedPositions[i], shares[i]);
-      numSubSets += shareCombinations(shares, i + 1, len - 1, result, expectedSecret, cachedPositions);
-    }
-    return numSubSets;
+    return Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares);
   }
 
   @Override

@@ -147,8 +147,10 @@ final class ShamirShareTest {
   @Test
   void testStaticShamirMethods() {
     final var secureRandom = new SecureRandom();
+
     final var prime = BigInteger.valueOf(73_939_133);
     assertTrue(prime.isProbablePrime(Integer.MAX_VALUE));
+
     final int numRequired = 3;
     final var secrets = Shamir.createSecrets(secureRandom, prime, numRequired);
     assertEquals(numRequired, secrets.length);
@@ -157,5 +159,8 @@ final class ShamirShareTest {
       assertTrue(secret.compareTo(prime) < 0, secret::toString);
       assertTrue(secret.compareTo(BigInteger.ZERO) > 0, secret::toString);
     }
+
+    final var shares = Shamir.createShares(prime, secrets, 5);
+    Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares);
   }
 }

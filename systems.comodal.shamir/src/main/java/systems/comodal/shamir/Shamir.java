@@ -3,6 +3,7 @@ package systems.comodal.shamir;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public final class Shamir {
 
@@ -71,5 +72,44 @@ public final class Shamir {
           .mod(prime);
     }
     return freeCoefficient;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static int validateShareCombinations(final BigInteger expectedSecret,
+                                              final BigInteger prime,
+                                              final int numRequiredShares,
+                                              final BigInteger[] shares) {
+    final var positions = IntStream.rangeClosed(1, shares.length).mapToObj(BigInteger::valueOf).toArray(BigInteger[]::new);
+    return Shamir.shareCombinations(shares, 0, numRequiredShares, new Map.Entry[numRequiredShares], expectedSecret, prime, positions);
+  }
+
+  private static int shareCombinations(final BigInteger[] shares,
+                                       final int startPos,
+                                       final int len,
+                                       final Map.Entry<BigInteger, BigInteger>[] result,
+                                       final BigInteger expectedSecret,
+                                       final BigInteger prime,
+                                       final BigInteger[] cachedPositions) {
+    if (len == 0) {
+      validateReconstruction(expectedSecret, prime, Map.ofEntries(result));
+      return 1;
+    }
+    int numSubSets = 0;
+    for (int i = startPos; i <= shares.length - len; i++) {
+      final int r = result.length - len;
+      result[r] = Map.entry(cachedPositions[i], shares[i]);
+      numSubSets += shareCombinations(shares, i + 1, len - 1, result, expectedSecret, prime, cachedPositions);
+    }
+    return numSubSets;
+  }
+
+  private static void validateReconstruction(final BigInteger expectedSecret,
+                                             final BigInteger prime,
+                                             final Map<BigInteger, BigInteger> shareMap) {
+    final var reconstructedSecret = reconstructSecret(shareMap, prime);
+    if (!expectedSecret.equals(reconstructedSecret)) {
+      throw new IllegalStateException(String.format("Reconstructed secret does not equal expected secret. %nReconstructed: '%s' %nExpected: '%s' %nWith %d shares: %n%s",
+          reconstructedSecret, expectedSecret, shareMap.size(), shareMap));
+    }
   }
 }

@@ -1,5 +1,7 @@
 # secret-shamiracle [![License](http://img.shields.io/badge/license-Apache--2-blue.svg?style=flat)](LICENSE)
 
+Simple builder and utility functions for creating Shamir secret shares and reconstructing/interpolating the original secret from Shamir shares.
+
 ### Context
 
 See the [Shamir secret sharing wiki](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing#Shamir's_secret-sharing_scheme) for background and context.

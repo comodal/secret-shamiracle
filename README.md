@@ -1,6 +1,10 @@
 # secret-shamiracle [![License](http://img.shields.io/badge/license-Apache--2-blue.svg?style=flat)](LICENSE)
 
-## Usage
+### Context
+
+See the [Shamir secret sharing wiki](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing#Shamir's_secret-sharing_scheme) for background and context.
+
+### Usage
 
 ```java
 var sharesBuilder = Shamir.buildShares()
@@ -19,5 +23,5 @@ sharesBuilder.clearSecrets();
 var shareMap = Map.of(BigInteger.valueOf(1), shares[0],
                       BigInteger.valueOf(3), shares[2],
                       BigInteger.valueOf(5), shares[4]);
-BigInteger reconstructedSecret = reconstructSecret(shareMap, sharesBuilder.getPrime());
+BigInteger reconstructedSecret = Shamir.reconstructSecret(shareMap, sharesBuilder.getPrime());
 ```

@@ -1,8 +1,8 @@
 package systems.comodal.shamir;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 public final class Shamir {
@@ -14,19 +14,19 @@ public final class Shamir {
     return new ShamirSharesBuilder();
   }
 
-  public static BigInteger[] createSecrets(final SecureRandom secureRandom, final BigInteger prime, final int requiredShares) {
+  public static BigInteger[] createSecrets(final Random secureRandom, final BigInteger prime, final int requiredShares) {
     final var secrets = new BigInteger[requiredShares];
     createSecrets(secureRandom, prime, secrets);
     return secrets;
   }
 
-  public static void createSecrets(final SecureRandom secureRandom, final BigInteger prime, final BigInteger[] secrets) {
+  public static void createSecrets(final Random secureRandom, final BigInteger prime, final BigInteger[] secrets) {
     for (int i = 0; i < secrets.length; i++) {
       secrets[i] = createSecret(secureRandom, prime);
     }
   }
 
-  public static BigInteger createSecret(final SecureRandom secureRandom, final BigInteger prime) {
+  public static BigInteger createSecret(final Random secureRandom, final BigInteger prime) {
     for (BigInteger secret; ; ) {
       secret = new BigInteger(prime.bitLength(), secureRandom);
       if (secret.compareTo(BigInteger.ZERO) > 0 && secret.compareTo(prime) < 0) {

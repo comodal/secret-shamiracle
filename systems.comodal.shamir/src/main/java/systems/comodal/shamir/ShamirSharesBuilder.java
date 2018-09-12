@@ -3,12 +3,13 @@ package systems.comodal.shamir;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Random;
 
 import static systems.comodal.shamir.Shamir.createSecret;
 
 public final class ShamirSharesBuilder {
 
-  private SecureRandom secureRandom;
+  private Random secureRandom;
   private BigInteger prime;
   private int numShares;
   private BigInteger[] secrets;
@@ -32,7 +33,7 @@ public final class ShamirSharesBuilder {
     return secrets == null ? null : secrets[0];
   }
 
-  public ShamirSharesBuilder secureRandom(final SecureRandom secureRandom) {
+  public ShamirSharesBuilder secureRandom(final Random secureRandom) {
     this.secureRandom = secureRandom;
     return this;
   }

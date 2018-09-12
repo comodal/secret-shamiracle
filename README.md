@@ -7,8 +7,8 @@
 * Credit to Stackoverflow user [JerzySkalski](https://stackoverflow.com/users/4513021/jerzyskalski) for providing a [working example](https://stackoverflow.com/a/34365904/3754157) which limits the finite field with prime modulus division.
 
 ### Components
-* [Shamir.java](./systems.comodal.shamir/src/main/java/systems/comodal/shamir/Shamir.java#L7): Minimal static methods to facilitate the creation of shares and the reconstruction of a secret.
-* [ShamirSharesBuilder.java](./systems.comodal.shamir/src/main/java/systems/comodal/shamir/ShamirSharesBuilder.java#L12): A mutable builder to help coordinate the state needed to create and validate shares.
+* [Shamir.java](./systems.comodal.shamir/src/main/java/systems/comodal/shamir/Shamir.java#L1): Minimal static methods to facilitate the creation of shares and the reconstruction of a secret.
+* [ShamirSharesBuilder.java](./systems.comodal.shamir/src/main/java/systems/comodal/shamir/ShamirSharesBuilder.java#L1): A mutable builder to help coordinate the state needed to create and validate shares.
 
 ### Shares Builder Usage
 

@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 final class ShamirShareTest {
 
@@ -57,5 +56,20 @@ final class ShamirShareTest {
     // n!  / (r! * (n  - r)!)
     // 10! / (5! * (10 - 5)!)
     assertEquals(252, sharesBuilder.validateShareCombinations(shares));
+  }
+
+  @Test
+  void testInvalidSecret() {
+    final var sharesBuilder = Shamir.buildShares()
+        .mersennePrimeExponent(521)
+        .numRequiredShares(3)
+        .numShares(7);
+
+    assertThrows(IllegalArgumentException.class, () -> sharesBuilder.initSecrets(sharesBuilder.getPrime()), "Should have failed with a secret == prime.");
+    assertThrows(IllegalArgumentException.class, () -> sharesBuilder.initSecrets(sharesBuilder.getPrime().add(BigInteger.TWO)), "Should have failed with a secret > prime.");
+    assertThrows(IllegalArgumentException.class, () -> sharesBuilder.initSecrets(BigInteger.ZERO), "Should have failed with a secret == 0.");
+    assertThrows(IllegalArgumentException.class, () -> sharesBuilder.initSecrets(BigInteger.ONE.negate()), "Should have failed with a secret < 0.");
+    assertDoesNotThrow(() -> sharesBuilder.initSecrets(sharesBuilder.getPrime().subtract(BigInteger.ONE)), "Should have succeeded with a secret == prime - 1.");
+    assertDoesNotThrow(() -> sharesBuilder.initSecrets(BigInteger.ONE), "Should have succeeded with a secret == 1.");
   }
 }

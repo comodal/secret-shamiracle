@@ -84,9 +84,24 @@ public final class ShamirSharesBuilder {
     if (secret.compareTo(BigInteger.ZERO) <= 0 || secret.compareTo(prime) >= 0) {
       throw new IllegalArgumentException("Secret must be greater than 0 and less than the prime " + prime);
     }
+    initSecureRandom();
+    initSecretsUnchecked(secret);
+    return this;
+  }
+
+  private void initSecureRandom() {
     if (secureRandom == null) {
       this.secureRandom = new SecureRandom();
     }
+  }
+
+  public ShamirSharesBuilder initSecrets() {
+    initSecureRandom();
+    initSecretsUnchecked(createSecret(secureRandom, prime));
+    return this;
+  }
+
+  private void initSecretsUnchecked(final BigInteger secret) {
     if (secrets == null || secrets.length != numRequiredShares) {
       secrets = new BigInteger[numRequiredShares];
     }
@@ -94,21 +109,6 @@ public final class ShamirSharesBuilder {
     for (int i = 1; i < numRequiredShares; i++) {
       secrets[i] = createSecret(secureRandom, prime);
     }
-    return this;
-  }
-
-  public ShamirSharesBuilder initSecrets() {
-    if (secureRandom == null) {
-      this.secureRandom = new SecureRandom();
-    }
-    if (secrets == null || secrets.length != numRequiredShares) {
-      secrets = new BigInteger[numRequiredShares];
-    }
-    secrets[0] = createSecret(secureRandom, prime);
-    for (int i = 1; i < numRequiredShares; i++) {
-      secrets[i] = createSecret(secureRandom, prime);
-    }
-    return this;
   }
 
   public ShamirSharesBuilder clearSecret(final int index) {

@@ -1,6 +1,7 @@
 package systems.comodal.shamir;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -51,14 +52,39 @@ public final class Shamir {
   }
 
   public static BigInteger reconstructSecret(final Map<BigInteger, BigInteger> shares, final BigInteger prime) {
+    final var shareEntries = shares.entrySet();
     var freeCoefficient = BigInteger.ZERO;
 
-    for (final var referenceEntry : shares.entrySet()) {
+    for (final var referenceEntry : shareEntries) {
       var numerator = BigInteger.ONE;
       var denominator = BigInteger.ONE;
 
       final var referencePosition = referenceEntry.getKey();
-      for (final var shareEntry : shares.entrySet()) {
+      for (final var shareEntry : shareEntries) {
+        final var position = shareEntry.getKey();
+        if (referencePosition.equals(position)) {
+          continue;
+        }
+        numerator = numerator.multiply(position.negate()).mod(prime);
+        denominator = denominator.multiply(referencePosition.subtract(position)).mod(prime);
+      }
+      final var share = referenceEntry.getValue();
+      freeCoefficient = prime.add(freeCoefficient)
+          .add(share.multiply(numerator).multiply(denominator.modInverse(prime)))
+          .mod(prime);
+    }
+    return freeCoefficient;
+  }
+
+  private static BigInteger reconstructSecret(final Map.Entry<BigInteger, BigInteger>[] shares, final BigInteger prime) {
+    var freeCoefficient = BigInteger.ZERO;
+
+    for (final var referenceEntry : shares) {
+      var numerator = BigInteger.ONE;
+      var denominator = BigInteger.ONE;
+
+      final var referencePosition = referenceEntry.getKey();
+      for (final var shareEntry : shares) {
         final var position = shareEntry.getKey();
         if (referencePosition.equals(position)) {
           continue;
@@ -79,7 +105,9 @@ public final class Shamir {
                                               final BigInteger prime,
                                               final int numRequiredShares,
                                               final BigInteger[] shares) {
-    final var points = IntStream.range(0, shares.length).mapToObj(i -> Map.entry(BigInteger.valueOf(i + 1), shares[i])).toArray(Map.Entry[]::new);
+    final var points = IntStream.range(0, shares.length)
+        .mapToObj(i -> Map.entry(BigInteger.valueOf(i + 1), shares[i]))
+        .toArray(Map.Entry[]::new);
     return Shamir.shareCombinations(points, 0, numRequiredShares, new Map.Entry[numRequiredShares], expectedSecret, prime);
   }
 
@@ -90,7 +118,7 @@ public final class Shamir {
                                        final BigInteger expectedSecret,
                                        final BigInteger prime) {
     if (len == 0) {
-      validateReconstruction(expectedSecret, prime, Map.ofEntries(result));
+      validateReconstruction(expectedSecret, prime, result);
       return 1;
     }
     int numSubSets = 0;
@@ -103,11 +131,11 @@ public final class Shamir {
 
   private static void validateReconstruction(final BigInteger expectedSecret,
                                              final BigInteger prime,
-                                             final Map<BigInteger, BigInteger> shareMap) {
-    final var reconstructedSecret = reconstructSecret(shareMap, prime);
+                                             final Map.Entry<BigInteger, BigInteger>[] shares) {
+    final var reconstructedSecret = reconstructSecret(shares, prime);
     if (!expectedSecret.equals(reconstructedSecret)) {
       throw new IllegalStateException(String.format("Reconstructed secret does not equal expected secret. %nReconstructed: '%s' %nExpected: '%s' %nWith %d shares: %n%s",
-          reconstructedSecret, expectedSecret, shareMap.size(), shareMap));
+          reconstructedSecret, expectedSecret, shares.length, Arrays.toString(shares)));
     }
   }
 }

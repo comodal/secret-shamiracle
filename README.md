@@ -45,6 +45,7 @@ sharesBuilder.validatePrime();
 var shares = sharesBuilder.createShares();
 
 // Validate secret reconstruction for all combinations of size 'numRequiredShares'.
+// Throws an IllegalStateException if any reconstruction does not equal the original secret.
 sharesBuilder.validateShareCombinations(shares);
 
 // Free references to BigInteger secrets... Data may continue to exist in system memory.

@@ -6,9 +6,9 @@
 var sharesBuilder = Shamir.buildShares()
   // Set mersenne prime: https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes
   .mersennePrimeExponent(521)
-  //.prime(prime) Or bring your own prime.
-  .numShares(4)
-  .numRequiredShares(2)
+  //.prime((BigInteger) prime) Or bring your own prime.
+  .numRequiredShares(3)
+  .numShares(5)
   .initSecrets();  // prepare 'requiredShares' coefficients
   //.initSecrets(secret); // Or supply your own secret, must be less than the configured prime.
 
@@ -16,7 +16,8 @@ BigInteger[] shares = sharesBuilder.createShares();
 sharesBuilder.clearSecrets();
 
 // ... reconstruct secret
-var shareMap = Map.of(BigInteger.ONE, shares[0],
-                      BigInteger.valueOf(3), shares[2]);
+var shareMap = Map.of(BigInteger.valueOf(1), shares[0],
+                      BigInteger.valueOf(3), shares[2],
+                      BigInteger.valueOf(5), shares[4]);
 BigInteger reconstructedSecret = reconstructSecret(shareMap, sharesBuilder.getPrime());
 ```

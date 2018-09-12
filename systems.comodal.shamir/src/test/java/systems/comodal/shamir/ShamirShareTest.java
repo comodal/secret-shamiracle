@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class ShamirShareTest {
@@ -185,5 +186,28 @@ final class ShamirShareTest {
 
     final var shares = Shamir.createShares(prime, secrets, 5);
     assertEquals(10, Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares));
+  }
+
+  @Test
+  void testSuppliedSecret() {
+    final var secretString = "Shamir's Secret";
+    final var secret = new BigInteger(secretString.getBytes(UTF_8));
+
+    final var sharesBuilder = Shamir.buildShares()
+        .mersennePrimeExponent(1_279)
+        .numRequiredShares(4)
+        .numShares(12)
+        .initSecrets(secret);
+
+    final var shares = sharesBuilder.createShares();
+    sharesBuilder.validateShareCombinations(shares);
+
+    final var shareMap = new HashMap<BigInteger, BigInteger>(sharesBuilder.getNumRequiredShares());
+    IntStream.range(0, sharesBuilder.getNumRequiredShares())
+        .forEach(i -> shareMap.put(BigInteger.valueOf(i + 1), shares[i]));
+    final var reconstructedSecret = Shamir.reconstructSecret(shareMap, sharesBuilder.getPrime());
+
+    assertEquals(secret, reconstructedSecret);
+    assertEquals(secretString, new String(reconstructedSecret.toByteArray(), UTF_8));
   }
 }

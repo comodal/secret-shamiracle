@@ -26,14 +26,10 @@
 
 ```java
 var sharesBuilder = Shamir.buildShares()
-  .mersennePrimeExponent(521)
   .numRequiredShares(3)
   .numShares(5)
-  .initSecrets();
-
-// Convenience method that calls prime.isProbablePrime(Integer.MAX_VALUE).
-// Throws an IllegalStateException if false.
-sharesBuilder.validatePrime();
+  .mersennePrimeExponent(521)
+  .initSecrets("Shamir's Secret".getBytes(UTF_8));
 
 // Shares are provided as an Array of BigIntegers to the user.
 // Each array value and its index is a coordinate in the system.
@@ -44,13 +40,11 @@ var shares = sharesBuilder.createShares();
 // Throws an IllegalStateException if any reconstructed secret does not equal the original.
 sharesBuilder.validateShareCombinations(shares);
 
-// Free references to BigInteger secrets... Data may continue to exist in system memory.
-sharesBuilder.clearSecrets();
-
-// ... reconstruct secret
+// ...
+// Reconstruct secret.
 var coordinates = Map.of(BigInteger.valueOf(1), shares[0],
                          BigInteger.valueOf(3), shares[2],
                          BigInteger.valueOf(5), shares[4]);
-BigInteger secret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
-byte[] secretBytes = secret.toByteArray();
+var secret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
+var secretString = new String(secret.toByteArray(), UTF_8);
 ```

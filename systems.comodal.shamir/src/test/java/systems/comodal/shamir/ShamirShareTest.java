@@ -248,6 +248,26 @@ final class ShamirShareTest {
     IntStream.range(0, 100).forEach(i -> Shamir.createSecret(secureRandom, smallestPrime));
   }
 
+  @Test
+  void testReadmeExample() {
+    var sharesBuilder = Shamir.buildShares()
+        .numRequiredShares(3)
+        .numShares(5)
+        .mersennePrimeExponent(521)
+        .initSecrets("Shamir's Secret".getBytes(UTF_8));
+
+    var shares = sharesBuilder.createShares();
+
+    sharesBuilder.validateShareCombinations(shares);
+
+    var coordinates = Map.of(BigInteger.valueOf(1), shares[0],
+        BigInteger.valueOf(3), shares[2],
+        BigInteger.valueOf(5), shares[4]);
+    var secret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
+    var secretString = new String(secret.toByteArray(), UTF_8);
+    assertEquals("Shamir's Secret", secretString);
+  }
+
   private void validateToString(final Object object) {
     assertDoesNotThrow(object::toString, () -> object.getClass().getSimpleName() + "#toString failed");
   }

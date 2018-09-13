@@ -16,14 +16,14 @@
 * Total Shares: The total number of shares to generate.
 * Prime:
   * May be supplied directly, or indirectly as a [Mersenne Prime](https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes) exponent.
-    * If supplying a secret, `BigInteger#nextProbablePrime` from the `secret` is used as the default if `prime` is null.
-    * If not supplying a secret and `prime` is null then a NullPointerException will be thrown.
   * Defines the finite field.
   * Must be larger than all secrets used.
 * SecureRandom: Defaults to `new SecureRandom()`
 * Secret:
   * The underlying secret may be provided as a byte[] or BigInteger to `initSecrets(secret)`.
+    * If `prime` is null, a default value of `BigInteger#nextProbablePrime` from the `secret` is used.
   * Defaults to a random value in the range (0, prime) with a call to `initSecrets()`.
+    * If `prime` is null then a NullPointerException will be thrown.
 
 ```java
 var sharesBuilder = Shamir.buildShares()

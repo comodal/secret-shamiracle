@@ -85,6 +85,13 @@ public final class ShamirSharesBuilder {
     return this;
   }
 
+  public ShamirSharesBuilder initSecrets(final byte[] secretBytes) {
+    final var secret = new BigInteger(1, secretBytes);
+    initSecureRandom();
+    initSecretsUnchecked(secret);
+    return this;
+  }
+
   public ShamirSharesBuilder initSecrets(final BigInteger secret) {
     if (secret.compareTo(BigInteger.ZERO) <= 0 || secret.compareTo(prime) >= 0) {
       throw new IllegalArgumentException("Secret must be greater than 0 and less than the prime " + prime);

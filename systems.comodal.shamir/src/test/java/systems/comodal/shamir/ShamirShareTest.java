@@ -196,7 +196,8 @@ final class ShamirShareTest {
   @Test
   void testSuppliedSecret() {
     final var secretString = "Shamir's Secret";
-    final var secret = new BigInteger(secretString.getBytes(UTF_8));
+    final var secretBytes = secretString.getBytes(UTF_8);
+    final var secret = new BigInteger(secretBytes);
 
     final var sharesBuilder = Shamir.buildShares()
         .mersennePrimeExponent(1_279)
@@ -211,14 +212,31 @@ final class ShamirShareTest {
     final var coordinates = new HashMap<BigInteger, BigInteger>(sharesBuilder.getNumRequiredShares());
     IntStream.range(0, sharesBuilder.getNumRequiredShares())
         .forEach(i -> coordinates.put(BigInteger.valueOf(i + 1), shares[i]));
-    final var reconstructedSecret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
+    var reconstructedSecret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
 
     assertEquals(secret, reconstructedSecret);
-    assertEquals(secretString, new String(reconstructedSecret.toByteArray(), UTF_8));
+    var reconstructSecretBytes = reconstructedSecret.toByteArray();
+    assertArrayEquals(secretBytes, reconstructSecretBytes);
+    assertEquals(secretString, new String(reconstructSecretBytes, UTF_8));
+
+    sharesBuilder.initSecrets(secretBytes);
+
+    final var shares2 = sharesBuilder.createShares();
+    sharesBuilder.validateShareCombinations(shares2);
+
+    final var coordinates2 = new HashMap<BigInteger, BigInteger>(sharesBuilder.getNumRequiredShares());
+    IntStream.range(0, sharesBuilder.getNumRequiredShares())
+        .forEach(i -> coordinates2.put(BigInteger.valueOf(i + 1), shares[i]));
+    reconstructedSecret = Shamir.reconstructSecret(coordinates2, sharesBuilder.getPrime());
+
+    assertEquals(secret, reconstructedSecret);
+    reconstructSecretBytes = reconstructedSecret.toByteArray();
+    assertArrayEquals(secretBytes, reconstructSecretBytes);
+    assertEquals(secretString, new String(reconstructSecretBytes, UTF_8));
   }
 
   @Test
-  void testCreateSecret() {
+  void testCreateSecretBoundsCheck() {
     final var secureRandom = new SecureRandom();
     final var smallestPrime = BigInteger.TWO;
     IntStream.range(0, 100).forEach(i -> Shamir.createSecret(secureRandom, smallestPrime));

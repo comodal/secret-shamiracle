@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
@@ -206,33 +207,31 @@ final class ShamirShareTest {
         .initSecrets(secret);
 
     sharesBuilder.validatePrime();
+
+    final var coordinates = new HashMap<BigInteger, BigInteger>(sharesBuilder.getNumRequiredShares());
+    validateShares(sharesBuilder, coordinates, secret, secretBytes, secretString);
+
+    sharesBuilder.initSecrets(secretBytes);
+    coordinates.clear();
+    validateShares(sharesBuilder, coordinates, secret, secretBytes, secretString);
+  }
+
+  private void validateShares(final ShamirSharesBuilder sharesBuilder,
+                              final Map<BigInteger, BigInteger> coordinates,
+                              final BigInteger expectedSecret,
+                              final byte[] expectedSecretBytes,
+                              final String expectedSecretString) {
     final var shares = sharesBuilder.createShares();
     sharesBuilder.validateShareCombinations(shares);
 
-    final var coordinates = new HashMap<BigInteger, BigInteger>(sharesBuilder.getNumRequiredShares());
     IntStream.range(0, sharesBuilder.getNumRequiredShares())
         .forEach(i -> coordinates.put(BigInteger.valueOf(i + 1), shares[i]));
-    var reconstructedSecret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
+    final var reconstructedSecret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
 
-    assertEquals(secret, reconstructedSecret);
-    var reconstructSecretBytes = reconstructedSecret.toByteArray();
-    assertArrayEquals(secretBytes, reconstructSecretBytes);
-    assertEquals(secretString, new String(reconstructSecretBytes, UTF_8));
-
-    sharesBuilder.initSecrets(secretBytes);
-
-    final var shares2 = sharesBuilder.createShares();
-    sharesBuilder.validateShareCombinations(shares2);
-
-    final var coordinates2 = new HashMap<BigInteger, BigInteger>(sharesBuilder.getNumRequiredShares());
-    IntStream.range(0, sharesBuilder.getNumRequiredShares())
-        .forEach(i -> coordinates2.put(BigInteger.valueOf(i + 1), shares[i]));
-    reconstructedSecret = Shamir.reconstructSecret(coordinates2, sharesBuilder.getPrime());
-
-    assertEquals(secret, reconstructedSecret);
-    reconstructSecretBytes = reconstructedSecret.toByteArray();
-    assertArrayEquals(secretBytes, reconstructSecretBytes);
-    assertEquals(secretString, new String(reconstructSecretBytes, UTF_8));
+    assertEquals(expectedSecret, reconstructedSecret);
+    final var reconstructSecretBytes = reconstructedSecret.toByteArray();
+    assertArrayEquals(expectedSecretBytes, reconstructSecretBytes);
+    assertEquals(expectedSecretString, new String(reconstructSecretBytes, UTF_8));
   }
 
   @Test

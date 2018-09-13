@@ -54,7 +54,7 @@ compileTestJava {
   doFirst {
     options.compilerArgs = [
         '--module-path', classpath.asPath,
-        '--add-modules', 'org.junit.jupiter.api,commons.math4',
+        '--add-modules', 'org.junit.jupiter.api,commons.numbers.combinatorics',
         '--add-reads', "$moduleName=org.junit.jupiter.api,commons.math4",
         '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath
     ]
@@ -69,7 +69,7 @@ test {
     jvmArgs = [
         '--module-path', classpath.asPath,
         '--add-modules', 'ALL-MODULE-PATH',
-        '--add-reads', "$moduleName=org.junit.jupiter.api,commons.math4",
+        '--add-reads', "$moduleName=org.junit.jupiter.api,commons.numbers.combinatorics",
         '--patch-module', "$moduleName=" + files(sourceSets.test.java.outputDir).asPath,
         '--add-opens', "$moduleName/systems.comodal.shamir=org.junit.platform.commons"
     ]

@@ -13,17 +13,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class ShamirShareTest {
 
+
   @Test
   void testShareCreationAndReconstruction() {
     final var sharesBuilder = Shamir.buildShares().mersennePrimeExponent(521);
 
     sharesBuilder.validatePrime();
     assertNull(sharesBuilder.getSecret());
-    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
+    validateToString(sharesBuilder);
 
     int numShares = 64;
     final var sharePositions = IntStream.rangeClosed(1, numShares).mapToObj(BigInteger::valueOf).toArray(BigInteger[]::new);
-    final var shareMap = new HashMap<BigInteger, BigInteger>(numShares);
+    final var coordinates = new HashMap<BigInteger, BigInteger>(numShares);
 
     for (; numShares >= 63; numShares--) {
       sharesBuilder.numShares(numShares);
@@ -40,10 +41,10 @@ final class ShamirShareTest {
         ThreadLocalRandom.current().ints(0, sharesBuilder.getNumShares())
             .distinct()
             .limit(sharesBuilder.getNumRequiredShares())
-            .forEach(i -> shareMap.put(sharePositions[i], shares[i]));
-        final var reconstructedSecret = Shamir.reconstructSecret(shareMap, sharesBuilder.getPrime());
+            .forEach(i -> coordinates.put(sharePositions[i], shares[i]));
+        final var reconstructedSecret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
         assertEquals(sharesBuilder.getSecret(), reconstructedSecret, sharesBuilder::toString);
-        shareMap.clear();
+        coordinates.clear();
 
         assertNull(sharesBuilder.clearSecrets().getSecret());
       }
@@ -64,7 +65,7 @@ final class ShamirShareTest {
     assertNotNull(sharesBuilder.getSecret());
     assertEquals(5, sharesBuilder.getNumRequiredShares());
     assertEquals(10, sharesBuilder.getNumShares());
-    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
+    validateToString(sharesBuilder);
 
     final var shares = sharesBuilder.createShares();
     // n!  / (r! * (n  - r)!)
@@ -77,7 +78,7 @@ final class ShamirShareTest {
     assertThrows(IllegalStateException.class, () -> sharesBuilder.validateShareCombinations(shares));
 
     assertNull(sharesBuilder.clearSecret(0).getSecret());
-    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
+    validateToString(sharesBuilder);
   }
 
   @Test
@@ -94,7 +95,7 @@ final class ShamirShareTest {
     assertNull(sharesBuilder.getSecret());
     assertEquals(3, sharesBuilder.getNumRequiredShares());
     assertEquals(7, sharesBuilder.getNumShares());
-    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
+    validateToString(sharesBuilder);
 
     assertThrows(IllegalArgumentException.class, () -> sharesBuilder.initSecrets(sharesBuilder.getPrime()), "Should have failed with a secret equal to prime.");
     assertThrows(IllegalArgumentException.class, () -> sharesBuilder.initSecrets(sharesBuilder.getPrime().add(BigInteger.TWO)), "Should have failed with a secret > prime.");
@@ -117,7 +118,7 @@ final class ShamirShareTest {
     assertNull(sharesBuilder.getSecret());
     assertEquals(2, sharesBuilder.getNumRequiredShares());
     assertEquals(8, sharesBuilder.getNumShares());
-    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
+    validateToString(sharesBuilder);
 
     assertThrows(IllegalStateException.class, sharesBuilder::validatePrime, () -> "Should have failed, supplied an invalid prime " + sharesBuilder.getPrime());
     assertThrows(IllegalStateException.class, () -> sharesBuilder.validateAndSetPrime(sharesBuilder.getPrime()), () -> "Should have failed, supplied an invalid prime " + sharesBuilder.getPrime());
@@ -132,7 +133,7 @@ final class ShamirShareTest {
     for (int exponent : exponents) {
       sharesBuilder.mersennePrimeExponent(exponent).validatePrime();
     }
-    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
+    validateToString(sharesBuilder);
   }
 
   @Test
@@ -142,7 +143,7 @@ final class ShamirShareTest {
     assertNull(sharesBuilder.getPrime());
     assertEquals(0, sharesBuilder.getNumRequiredShares());
     assertEquals(0, sharesBuilder.getNumShares());
-    assertDoesNotThrow(sharesBuilder::toString, "toString failed");
+    validateToString(sharesBuilder);
   }
 
   @Test
@@ -176,6 +177,7 @@ final class ShamirShareTest {
     assertTrue(prime.isProbablePrime(Integer.MAX_VALUE));
 
     final int numRequired = 3;
+    final int numShares = 5;
     final var secrets = Shamir.createSecrets(secureRandom, prime, numRequired);
     assertEquals(numRequired, secrets.length);
     for (final var secret : secrets) {
@@ -184,7 +186,10 @@ final class ShamirShareTest {
       assertTrue(secret.compareTo(BigInteger.ZERO) > 0, secret::toString);
     }
 
-    final var shares = Shamir.createShares(prime, secrets, 5);
+    var shares = Shamir.createShares(prime, secrets, numShares);
+    assertEquals(10, Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares));
+
+    shares = Shamir.createShares(secureRandom, prime, secrets[0], numRequired, numShares);
     assertEquals(10, Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares));
   }
 
@@ -203,12 +208,16 @@ final class ShamirShareTest {
     final var shares = sharesBuilder.createShares();
     sharesBuilder.validateShareCombinations(shares);
 
-    final var shareMap = new HashMap<BigInteger, BigInteger>(sharesBuilder.getNumRequiredShares());
+    final var coordinates = new HashMap<BigInteger, BigInteger>(sharesBuilder.getNumRequiredShares());
     IntStream.range(0, sharesBuilder.getNumRequiredShares())
-        .forEach(i -> shareMap.put(BigInteger.valueOf(i + 1), shares[i]));
-    final var reconstructedSecret = Shamir.reconstructSecret(shareMap, sharesBuilder.getPrime());
+        .forEach(i -> coordinates.put(BigInteger.valueOf(i + 1), shares[i]));
+    final var reconstructedSecret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
 
     assertEquals(secret, reconstructedSecret);
     assertEquals(secretString, new String(reconstructedSecret.toByteArray(), UTF_8));
+  }
+
+  private void validateToString(final Object object) {
+    assertDoesNotThrow(object::toString, () -> object.getClass().getSimpleName() + "#toString failed");
   }
 }

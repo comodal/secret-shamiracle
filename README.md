@@ -52,8 +52,8 @@ sharesBuilder.validateShareCombinations(shares);
 sharesBuilder.clearSecrets();
 
 // ... reconstruct secret
-var shareMap = Map.of(BigInteger.valueOf(1), shares[0],
-                      BigInteger.valueOf(3), shares[2],
-                      BigInteger.valueOf(5), shares[4]);
-BigInteger secret = Shamir.reconstructSecret(shareMap, sharesBuilder.getPrime());
+var coordinates = Map.of(BigInteger.valueOf(1), shares[0],
+                         BigInteger.valueOf(3), shares[2],
+                         BigInteger.valueOf(5), shares[4]);
+BigInteger secret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
 ```

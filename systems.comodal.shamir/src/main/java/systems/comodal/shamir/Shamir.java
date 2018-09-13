@@ -36,6 +36,19 @@ public final class Shamir {
     }
   }
 
+  public static BigInteger[] createShares(final Random secureRandom,
+                                          final BigInteger prime,
+                                          final BigInteger secret,
+                                          final int requiredShares,
+                                          final int numShares) {
+    final var secrets = new BigInteger[requiredShares];
+    secrets[0] = secret;
+    for (int i = 1; i < requiredShares; i++) {
+      secrets[i] = createSecret(secureRandom, prime);
+    }
+    return createShares(prime, secrets, numShares);
+  }
+
   public static BigInteger[] createShares(final BigInteger prime, final BigInteger[] secrets, final int numShares) {
     final var shares = new BigInteger[numShares];
     for (int shareIndex = 0; shareIndex < numShares; shareIndex++) {
@@ -51,24 +64,24 @@ public final class Shamir {
     return shares;
   }
 
-  public static BigInteger reconstructSecret(final Map<BigInteger, BigInteger> shares, final BigInteger prime) {
-    final var shareEntries = shares.entrySet();
+  public static BigInteger reconstructSecret(final Map<BigInteger, BigInteger> coordinates, final BigInteger prime) {
+    final var coordinateEntries = coordinates.entrySet();
     var freeCoefficient = BigInteger.ZERO;
 
-    for (final var referenceEntry : shareEntries) {
+    for (final var referencePoint : coordinateEntries) {
       var numerator = BigInteger.ONE;
       var denominator = BigInteger.ONE;
 
-      final var referencePosition = referenceEntry.getKey();
-      for (final var shareEntry : shareEntries) {
-        final var position = shareEntry.getKey();
+      final var referencePosition = referencePoint.getKey();
+      for (final var point : coordinateEntries) {
+        final var position = point.getKey();
         if (referencePosition.equals(position)) {
           continue;
         }
         numerator = numerator.multiply(position.negate()).mod(prime);
         denominator = denominator.multiply(referencePosition.subtract(position)).mod(prime);
       }
-      final var share = referenceEntry.getValue();
+      final var share = referencePoint.getValue();
       freeCoefficient = prime.add(freeCoefficient)
           .add(share.multiply(numerator).multiply(denominator.modInverse(prime)))
           .mod(prime);
@@ -76,23 +89,23 @@ public final class Shamir {
     return freeCoefficient;
   }
 
-  private static BigInteger reconstructSecret(final Map.Entry<BigInteger, BigInteger>[] shares, final BigInteger prime) {
+  private static BigInteger reconstructSecret(final Map.Entry<BigInteger, BigInteger>[] coordinates, final BigInteger prime) {
     var freeCoefficient = BigInteger.ZERO;
 
-    for (final var referenceEntry : shares) {
+    for (final var referencePoint : coordinates) {
       var numerator = BigInteger.ONE;
       var denominator = BigInteger.ONE;
 
-      final var referencePosition = referenceEntry.getKey();
-      for (final var shareEntry : shares) {
-        final var position = shareEntry.getKey();
+      final var referencePosition = referencePoint.getKey();
+      for (final var point : coordinates) {
+        final var position = point.getKey();
         if (referencePosition.equals(position)) {
           continue;
         }
         numerator = numerator.multiply(position.negate()).mod(prime);
         denominator = denominator.multiply(referencePosition.subtract(position)).mod(prime);
       }
-      final var share = referenceEntry.getValue();
+      final var share = referencePoint.getValue();
       freeCoefficient = prime.add(freeCoefficient)
           .add(share.multiply(numerator).multiply(denominator.modInverse(prime)))
           .mod(prime);
@@ -105,13 +118,13 @@ public final class Shamir {
                                               final BigInteger prime,
                                               final int numRequiredShares,
                                               final BigInteger[] shares) {
-    final var points = IntStream.range(0, shares.length)
+    final var coordinates = IntStream.range(0, shares.length)
         .mapToObj(i -> Map.entry(BigInteger.valueOf(i + 1), shares[i]))
         .toArray(Map.Entry[]::new);
-    return Shamir.shareCombinations(points, 0, numRequiredShares, new Map.Entry[numRequiredShares], expectedSecret, prime);
+    return Shamir.shareCombinations(coordinates, 0, numRequiredShares, new Map.Entry[numRequiredShares], expectedSecret, prime);
   }
 
-  private static int shareCombinations(final Map.Entry<BigInteger, BigInteger>[] points,
+  private static int shareCombinations(final Map.Entry<BigInteger, BigInteger>[] coordinates,
                                        final int startPos,
                                        final int len,
                                        final Map.Entry<BigInteger, BigInteger>[] result,
@@ -122,20 +135,20 @@ public final class Shamir {
       return 1;
     }
     int numSubSets = 0;
-    for (int i = startPos; i <= points.length - len; i++) {
-      result[result.length - len] = points[i];
-      numSubSets += shareCombinations(points, i + 1, len - 1, result, expectedSecret, prime);
+    for (int i = startPos; i <= coordinates.length - len; i++) {
+      result[result.length - len] = coordinates[i];
+      numSubSets += shareCombinations(coordinates, i + 1, len - 1, result, expectedSecret, prime);
     }
     return numSubSets;
   }
 
   private static void validateReconstruction(final BigInteger expectedSecret,
                                              final BigInteger prime,
-                                             final Map.Entry<BigInteger, BigInteger>[] shares) {
-    final var reconstructedSecret = reconstructSecret(shares, prime);
+                                             final Map.Entry<BigInteger, BigInteger>[] coordinates) {
+    final var reconstructedSecret = reconstructSecret(coordinates, prime);
     if (!expectedSecret.equals(reconstructedSecret)) {
       throw new IllegalStateException(String.format("Reconstructed secret does not equal expected secret. %nReconstructed: '%s' %nExpected: '%s' %nWith %d shares: %n%s",
-          reconstructedSecret, expectedSecret, shares.length, Arrays.toString(shares)));
+          reconstructedSecret, expectedSecret, coordinates.length, Arrays.toString(coordinates)));
     }
   }
 }

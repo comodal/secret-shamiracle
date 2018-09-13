@@ -81,6 +81,20 @@ final class ShamirShareTest {
   }
 
   @Test
+  void testInvalidConfiguration() {
+    final var sharesBuilder = Shamir.buildShares();
+    assertThrows(NullPointerException.class, sharesBuilder::initSecrets, "Should have failed with null prime.");
+    sharesBuilder.prime(BigInteger.TWO);
+    assertThrows(IllegalStateException.class, sharesBuilder::initSecrets, "Should have failed with null numRequiredShares.");
+    sharesBuilder.numRequiredShares(0);
+    assertThrows(IllegalStateException.class, sharesBuilder::initSecrets, "Should have failed because of zero numRequiredShares.");
+    sharesBuilder.numRequiredShares(1).initSecrets();
+    assertThrows(IllegalStateException.class, sharesBuilder::createShares, "Should have failed because of zero numRequiredShares.");
+    sharesBuilder.numShares(2);
+    assertDoesNotThrow(sharesBuilder::createShares);
+  }
+
+  @Test
   void testInvalidSecret() {
     final var prime = BigInteger.valueOf(2147483647L);
     final var sharesBuilder = Shamir.buildShares()

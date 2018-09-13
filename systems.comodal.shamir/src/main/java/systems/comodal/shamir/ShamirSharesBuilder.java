@@ -139,7 +139,14 @@ public final class ShamirSharesBuilder {
   }
 
   public BigInteger[] createShares() {
-    return Shamir.createShares(prime, secrets, numShares);
+    return Shamir.createShares(prime, secrets, validateNumShares());
+  }
+  
+  private int validateNumShares() {
+    if (numShares > 0) {
+      return numShares;
+    }
+    throw new IllegalStateException("Num shares must be set and greater than 0.");
   }
 
   @SuppressWarnings("unchecked")

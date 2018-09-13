@@ -21,7 +21,7 @@
 * SecureRandom: Defaults to `new SecureRandom()`
 * Secret:
   * If `prime` is null then a NullPointerException will be thrown when initializing secrets.
-  * The underlying secret may be provided as a byte[] or BigInteger to `initSecrets(secret)`.
+  * May be provided as a byte[] or a BigInteger to `initSecrets(secret)`.
   * Defaults to a random value in the range (0, prime) with a call to `initSecrets()`.
 
 ```java
@@ -52,4 +52,5 @@ var coordinates = Map.of(BigInteger.valueOf(1), shares[0],
                          BigInteger.valueOf(3), shares[2],
                          BigInteger.valueOf(5), shares[4]);
 BigInteger secret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
+byte[] secretBytes = secret.toByteArray();
 ```

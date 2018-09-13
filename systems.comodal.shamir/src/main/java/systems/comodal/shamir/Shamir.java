@@ -49,7 +49,9 @@ public final class Shamir {
     return createShares(prime, secrets, numShares);
   }
 
-  public static BigInteger[] createShares(final BigInteger prime, final BigInteger[] secrets, final int numShares) {
+  public static BigInteger[] createShares(final BigInteger prime,
+                                          final BigInteger[] secrets,
+                                          final int numShares) {
     final var shares = new BigInteger[numShares];
     for (int shareIndex = 0; shareIndex < numShares; shareIndex++) {
       var result = secrets[0];
@@ -64,50 +66,56 @@ public final class Shamir {
     return shares;
   }
 
-  public static BigInteger reconstructSecret(final Map<BigInteger, BigInteger> coordinates, final BigInteger prime) {
-    final var coordinateEntries = coordinates.entrySet();
+  public static BigInteger reconstructSecret(final Map<BigInteger, BigInteger> coordinates,
+                                             final BigInteger prime) {
+    return reconstructSecret(coordinates.entrySet(), prime);
+  }
+
+  public static BigInteger reconstructSecret(final Iterable<Map.Entry<BigInteger, BigInteger>> coordinateEntries,
+                                             final BigInteger prime) {
     var freeCoefficient = BigInteger.ZERO;
+    BigInteger referencePosition, position;
+    BigInteger numerator, denominator;
 
     for (final var referencePoint : coordinateEntries) {
-      var numerator = BigInteger.ONE;
-      var denominator = BigInteger.ONE;
-
-      final var referencePosition = referencePoint.getKey();
+      numerator = denominator = BigInteger.ONE;
+      referencePosition = referencePoint.getKey();
       for (final var point : coordinateEntries) {
-        final var position = point.getKey();
+        position = point.getKey();
         if (referencePosition.equals(position)) {
           continue;
         }
         numerator = numerator.multiply(position.negate()).mod(prime);
         denominator = denominator.multiply(referencePosition.subtract(position)).mod(prime);
       }
-      final var share = referencePoint.getValue();
       freeCoefficient = prime.add(freeCoefficient)
-          .add(share.multiply(numerator).multiply(denominator.modInverse(prime)))
+          .add(referencePoint.getValue().multiply(numerator).multiply(denominator.modInverse(prime)))
           .mod(prime);
     }
     return freeCoefficient;
   }
 
-  private static BigInteger reconstructSecret(final Map.Entry<BigInteger, BigInteger>[] coordinates, final BigInteger prime) {
+  private static BigInteger reconstructSecret(final Map.Entry<BigInteger, BigInteger>[] coordinates,
+                                              final BigInteger prime) {
     var freeCoefficient = BigInteger.ZERO;
+    Map.Entry<BigInteger, BigInteger> referencePoint;
+    BigInteger position;
+    BigInteger numerator, denominator;
 
-    for (final var referencePoint : coordinates) {
-      var numerator = BigInteger.ONE;
-      var denominator = BigInteger.ONE;
-
-      final var referencePosition = referencePoint.getKey();
-      for (final var point : coordinates) {
-        final var position = point.getKey();
-        if (referencePosition.equals(position)) {
+    final int numPoints = coordinates.length;
+    for (int i = 0; i < numPoints; i++) {
+      numerator = denominator = BigInteger.ONE;
+      referencePoint = coordinates[i];
+      for (int j = 0; j < numPoints; j++) {
+        if (i == j) {
           continue;
         }
+        position = coordinates[j].getKey();
         numerator = numerator.multiply(position.negate()).mod(prime);
-        denominator = denominator.multiply(referencePosition.subtract(position)).mod(prime);
+        denominator = denominator.multiply(referencePoint.getKey().subtract(position)).mod(prime);
       }
-      final var share = referencePoint.getValue();
       freeCoefficient = prime.add(freeCoefficient)
-          .add(share.multiply(numerator).multiply(denominator.modInverse(prime)))
+          .add(referencePoint.getValue().multiply(numerator).multiply(denominator.modInverse(prime)))
           .mod(prime);
     }
     return freeCoefficient;

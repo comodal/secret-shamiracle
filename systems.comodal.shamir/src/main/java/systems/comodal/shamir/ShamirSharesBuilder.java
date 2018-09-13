@@ -91,9 +91,7 @@ public final class ShamirSharesBuilder {
   }
 
   public ShamirSharesBuilder initSecrets(final BigInteger secret) {
-    if (prime == null) {
-      this.prime = secret.nextProbablePrime();
-    }
+    Objects.requireNonNull(prime, "Prime must be set.");
     if (secret.compareTo(BigInteger.ZERO) <= 0 || secret.compareTo(prime) >= 0) {
       throw new IllegalArgumentException("Secret must be greater than 0 and less than the prime " + prime);
     }

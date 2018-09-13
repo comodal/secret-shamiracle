@@ -215,9 +215,8 @@ final class ShamirShareTest {
     validateShares(sharesBuilder, coordinates, secret, secretBytes, secretString);
 
     sharesBuilder.prime(null);
-    sharesBuilder.initSecrets(secretBytes);
-    coordinates.clear();
-    validateShares(sharesBuilder, coordinates, secret, secretBytes, secretString);
+    assertThrows(NullPointerException.class, () -> sharesBuilder.initSecrets(secretBytes), "Should have failed with a null prime.");
+    assertThrows(NullPointerException.class, sharesBuilder::initSecrets, "Should have failed with a null prime.");
   }
 
   private static long binomialCoefficient(final ShamirSharesBuilder sharesBuilder) {

@@ -15,15 +15,14 @@
 * Required Shares: The minimum number of shares needed to reconstruct the free coefficient secret.
 * Total Shares: The total number of shares to generate.
 * Prime:
-  * May be supplied directly, or indirectly as a [Mersenne Prime](https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes) exponent.
-  * Defines the finite field.
+  * Must be supplied directly, or indirectly as a [Mersenne Prime](https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes) exponent.
   * Must be larger than all secrets used.
+  * Defines the finite field.
 * SecureRandom: Defaults to `new SecureRandom()`
 * Secret:
+  * If `prime` is null then a NullPointerException will be thrown when initializing secrets.
   * The underlying secret may be provided as a byte[] or BigInteger to `initSecrets(secret)`.
-    * If `prime` is null, a default value of `BigInteger#nextProbablePrime` from the `secret` is used.
   * Defaults to a random value in the range (0, prime) with a call to `initSecrets()`.
-    * If `prime` is null then a NullPointerException will be thrown.
 
 ```java
 var sharesBuilder = Shamir.buildShares()

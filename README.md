@@ -17,10 +17,8 @@
 * Prime:
   * Must be supplied directly, or indirectly as a [Mersenne Prime](https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes) exponent.
   * Must be larger than all secrets used.
-  * Defines the finite field.
 * SecureRandom: Defaults to `new SecureRandom()`
 * Secret:
-  * If `prime` is null then a NullPointerException will be thrown when initializing secrets.
   * May be provided as a byte[] or a BigInteger to `initSecrets(secret)`.
   * Defaults to a random value in the range (0, prime) with a call to `initSecrets()`.
 
@@ -31,16 +29,12 @@ var sharesBuilder = Shamir.buildShares()
   .mersennePrimeExponent(521)
   .initSecrets("Shamir's Secret".getBytes(UTF_8));
 
-// Shares are provided as an Array of BigIntegers to the user.
-// Each array value and its index is a coordinate in the system.
-// The array index corresponds to the x-axis position minus one.  Each value is the y-axis value.
 var shares = sharesBuilder.createShares();
 
 // Validate secret reconstruction for all share combinations of size 'numRequiredShares'.
 // Throws an IllegalStateException if any reconstructed secret does not equal the original.
 sharesBuilder.validateShareCombinations(shares);
 
-// ...
 // Reconstruct secret.
 var coordinates = Map.of(BigInteger.valueOf(1), shares[0],
                          BigInteger.valueOf(3), shares[2],

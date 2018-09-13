@@ -1,5 +1,6 @@
 package systems.comodal.shamir;
 
+import org.apache.commons.numbers.combinatorics.BinomialCoefficient;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -13,7 +14,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class ShamirShareTest {
-
 
   @Test
   void testShareCreationAndReconstruction() {
@@ -69,9 +69,7 @@ final class ShamirShareTest {
     validateToString(sharesBuilder);
 
     final var shares = sharesBuilder.createShares();
-    // n!  / (r! * (n  - r)!)
-    // 10! / (5! * (10 - 5)!)
-    assertEquals(252, sharesBuilder.validateShareCombinations(shares));
+    assertEquals(binomialCoefficient(sharesBuilder), sharesBuilder.validateShareCombinations(shares));
 
     final var swap = shares[0];
     shares[0] = shares[1];
@@ -188,10 +186,11 @@ final class ShamirShareTest {
     }
 
     var shares = Shamir.createShares(prime, secrets, numShares);
-    assertEquals(10, Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares));
+    final long binomialCoefficient = BinomialCoefficient.value(5, 3);
+    assertEquals(binomialCoefficient, Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares));
 
     shares = Shamir.createShares(secureRandom, prime, secrets[0], numRequired, numShares);
-    assertEquals(10, Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares));
+    assertEquals(binomialCoefficient, Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares));
   }
 
   @Test
@@ -216,13 +215,17 @@ final class ShamirShareTest {
     validateShares(sharesBuilder, coordinates, secret, secretBytes, secretString);
   }
 
+  private static long binomialCoefficient(final ShamirSharesBuilder sharesBuilder) {
+    return BinomialCoefficient.value(sharesBuilder.getNumShares(), sharesBuilder.getNumRequiredShares());
+  }
+
   private void validateShares(final ShamirSharesBuilder sharesBuilder,
                               final Map<BigInteger, BigInteger> coordinates,
                               final BigInteger expectedSecret,
                               final byte[] expectedSecretBytes,
                               final String expectedSecretString) {
     final var shares = sharesBuilder.createShares();
-    sharesBuilder.validateShareCombinations(shares);
+    assertEquals(binomialCoefficient(sharesBuilder), sharesBuilder.validateShareCombinations(shares));
 
     IntStream.range(0, sharesBuilder.getNumRequiredShares())
         .forEach(i -> coordinates.put(BigInteger.valueOf(i + 1), shares[i]));

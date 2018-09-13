@@ -15,7 +15,8 @@
 #### Required Fields
 
 * Prime:
-  * Can be supplied directly or indirectly as a [Mersenne Prime](https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes) exponent.
+  * May be supplied directly or indirectly as a [Mersenne Prime](https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes) exponent.
+    * If supplying a secret and `prime` is null then BigInteger#nextProbablePrime from the secret is used as the default.
   * Defines the finite field.
   * Must be larger than all secrets used.
 * Required Shares: The minimum number of shares needed to reconstruct the free coefficient secret.

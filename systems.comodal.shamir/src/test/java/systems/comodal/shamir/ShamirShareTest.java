@@ -202,7 +202,7 @@ final class ShamirShareTest {
     final var sharesBuilder = Shamir.buildShares()
         .mersennePrimeExponent(1_279)
         .numRequiredShares(4)
-        .numShares(12)
+        .numShares(8)
         .initSecrets(secret);
 
     sharesBuilder.validatePrime();
@@ -210,6 +210,11 @@ final class ShamirShareTest {
     final var coordinates = new HashMap<BigInteger, BigInteger>(sharesBuilder.getNumRequiredShares());
     validateShares(sharesBuilder, coordinates, secret, secretBytes, secretString);
 
+    sharesBuilder.initSecrets(secretBytes);
+    coordinates.clear();
+    validateShares(sharesBuilder, coordinates, secret, secretBytes, secretString);
+
+    sharesBuilder.prime(null);
     sharesBuilder.initSecrets(secretBytes);
     coordinates.clear();
     validateShares(sharesBuilder, coordinates, secret, secretBytes, secretString);

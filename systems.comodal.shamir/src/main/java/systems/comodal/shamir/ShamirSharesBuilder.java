@@ -3,6 +3,7 @@ package systems.comodal.shamir;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
 import static systems.comodal.shamir.Shamir.createSecret;
@@ -102,6 +103,7 @@ public final class ShamirSharesBuilder {
   }
 
   public ShamirSharesBuilder initSecrets() {
+    Objects.requireNonNull(prime, "Prime must be set.");
     initSecureRandom();
     initSecretsUnchecked(createSecret(secureRandom, prime));
     return this;

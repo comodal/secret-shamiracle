@@ -12,18 +12,16 @@
 
 ### Shares Builder Usage
 
-#### Required Fields
+#### Fields
 
+* Required Shares: The minimum number of shares needed to reconstruct the free coefficient secret.
+* Total Shares: The total number of shares to generate.
 * Prime:
   * May be supplied directly or indirectly as a [Mersenne Prime](https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes) exponent.
     * If supplying a secret and `prime` is null then BigInteger#nextProbablePrime from the secret is used as the default.
+    * If not supplying a secret and `prime` is null then a NullPointerException will be thrown.
   * Defines the finite field.
   * Must be larger than all secrets used.
-* Required Shares: The minimum number of shares needed to reconstruct the free coefficient secret.
-* Total Shares: The total number of shares to generate.
-
-#### Optional Fields
-
 * SecureRandom: Defaults to `new SecureRandom()`
 * Secret:
   * The underlying secret may be provided as a byte[] or BigInteger to `initSecrets(secret)`.

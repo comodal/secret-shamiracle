@@ -95,6 +95,7 @@ public final class ShamirSharesBuilder {
     if (secret.compareTo(BigInteger.ZERO) <= 0 || secret.compareTo(prime) >= 0) {
       throw new IllegalArgumentException("Secret must be greater than 0 and less than the prime " + prime);
     }
+    validateNumRequiredShares();
     initSecureRandom();
     initSecretsUnchecked(secret);
     return this;
@@ -102,9 +103,16 @@ public final class ShamirSharesBuilder {
 
   public ShamirSharesBuilder initSecrets() {
     Objects.requireNonNull(prime, "Prime must be set.");
+    validateNumRequiredShares();
     initSecureRandom();
     initSecretsUnchecked(createSecret(secureRandom, prime));
     return this;
+  }
+
+  private void validateNumRequiredShares() {
+    if (secrets == null || secrets.length == 0) {
+      throw new IllegalStateException("Num required shares must be set and greater than 0.");
+    }
   }
 
   private void initSecureRandom() {

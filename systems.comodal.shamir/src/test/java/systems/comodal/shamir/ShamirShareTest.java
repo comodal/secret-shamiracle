@@ -217,6 +217,13 @@ final class ShamirShareTest {
     assertEquals(secretString, new String(reconstructedSecret.toByteArray(), UTF_8));
   }
 
+  @Test
+  void testCreateSecret() {
+    final var secureRandom = new SecureRandom();
+    final var smallestPrime = BigInteger.TWO;
+    IntStream.range(0, 100).forEach(i -> Shamir.createSecret(secureRandom, smallestPrime));
+  }
+
   private void validateToString(final Object object) {
     assertDoesNotThrow(object::toString, () -> object.getClass().getSimpleName() + "#toString failed");
   }

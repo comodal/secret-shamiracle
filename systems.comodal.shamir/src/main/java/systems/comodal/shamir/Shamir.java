@@ -145,11 +145,15 @@ public final class Shamir {
         createCoordinates(shares),
         0, numRequiredShares,
         new Map.Entry[numRequiredShares], expectedSecret, prime);
-    final long numExpectedCombinations = BinomialCoefficient.value(shares.length, numRequiredShares);
+    validateNChooseK(shares.length, numRequiredShares, numCombinations);
+  }
+
+  static void validateNChooseK(final int n, final int k, final long numCombinations) {
+    final long numExpectedCombinations = BinomialCoefficient.value(n, k);
     if (numCombinations != numExpectedCombinations) {
       throw new IllegalStateException(String.format(
-          "Binomial coefficient of %d choose %d is %d, but we only test %d combinations.",
-          shares.length, numRequiredShares, numExpectedCombinations, numCombinations));
+          "Binomial coefficient of %d choose %d is %d, but we tested %d combinations.",
+          n, k, numExpectedCombinations, numCombinations));
     }
   }
 

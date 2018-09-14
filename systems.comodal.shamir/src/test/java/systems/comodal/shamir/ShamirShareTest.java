@@ -200,7 +200,6 @@ final class ShamirShareTest {
     }
 
     var shares = Shamir.createShares(prime, secrets, numShares);
-    final long binomialCoefficient = BinomialCoefficient.value(5, 3);
     Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares);
 
     shares = Shamir.createShares(secureRandom, prime, secrets[0], numRequired, numShares);
@@ -278,6 +277,15 @@ final class ShamirShareTest {
     var secret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
     var secretString = new String(secret.toByteArray(), UTF_8);
     assertEquals("Shamir's Secret", secretString);
+  }
+
+  @Test
+  void testValidateNChooseK() {
+    final long binomialCoefficient = BinomialCoefficient.value(5, 3);
+    Shamir.validateNChooseK(5, 3, binomialCoefficient);
+    assertThrows(IllegalStateException.class, () -> Shamir.validateNChooseK(5, 3, binomialCoefficient + 1));
+    assertThrows(IllegalStateException.class, () -> Shamir.validateNChooseK(5, 3, binomialCoefficient - 1));
+
   }
 
   private void validateToString(final Object object) {

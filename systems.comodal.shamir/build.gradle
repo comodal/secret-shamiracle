@@ -31,11 +31,9 @@ ext {
 
 repositories {
   mavenCentral()
-  maven { url "https://repository.apache.org/content/repositories/snapshots/" }
 }
 
 dependencies {
-  testImplementation 'org.apache.commons:commons-math4:+'
   testImplementation 'org.junit.jupiter:junit-jupiter-api:+'
   testImplementation 'org.junit.jupiter:junit-jupiter-params:+'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:+'
@@ -54,8 +52,8 @@ compileTestJava {
   doFirst {
     options.compilerArgs = [
         '--module-path', classpath.asPath,
-        '--add-modules', 'org.junit.jupiter.api,commons.numbers.combinatorics',
-        '--add-reads', "$moduleName=org.junit.jupiter.api,commons.numbers.combinatorics",
+        '--add-modules', 'org.junit.jupiter.api',
+        '--add-reads', "$moduleName=org.junit.jupiter.api",
         '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath
     ]
     classpath = files()
@@ -69,7 +67,7 @@ test {
     jvmArgs = [
         '--module-path', classpath.asPath,
         '--add-modules', 'ALL-MODULE-PATH',
-        '--add-reads', "$moduleName=org.junit.jupiter.api,commons.numbers.combinatorics",
+        '--add-reads', "$moduleName=org.junit.jupiter.api",
         '--patch-module', "$moduleName=" + files(sourceSets.test.java.outputDir).asPath,
         '--add-opens', "$moduleName/systems.comodal.shamir=org.junit.platform.commons"
     ]

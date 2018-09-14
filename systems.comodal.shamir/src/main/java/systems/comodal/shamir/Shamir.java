@@ -1,5 +1,7 @@
 package systems.comodal.shamir;
 
+import org.apache.commons.numbers.combinatorics.BinomialCoefficient;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Map;
@@ -135,25 +137,33 @@ public final class Shamir {
   }
 
   @SuppressWarnings("unchecked")
-  public static int validateShareCombinations(final BigInteger expectedSecret,
-                                              final BigInteger prime,
-                                              final int numRequiredShares,
-                                              final BigInteger[] shares) {
-    final var coordinates = createCoordinates(shares);
-    return Shamir.shareCombinations(coordinates, 0, numRequiredShares, new Map.Entry[numRequiredShares], expectedSecret, prime);
+  public static void validateShareCombinations(final BigInteger expectedSecret,
+                                               final BigInteger prime,
+                                               final int numRequiredShares,
+                                               final BigInteger[] shares) {
+    final long numCombinations = Shamir.shareCombinations(
+        createCoordinates(shares),
+        0, numRequiredShares,
+        new Map.Entry[numRequiredShares], expectedSecret, prime);
+    final long numExpectedCombinations = BinomialCoefficient.value(shares.length, numRequiredShares);
+    if (numCombinations != numExpectedCombinations) {
+      throw new IllegalStateException(String.format(
+          "Binomial coefficient of %d choose %d is %d, but we only test %d combinations.",
+          shares.length, numRequiredShares, numExpectedCombinations, numCombinations));
+    }
   }
 
-  private static int shareCombinations(final Map.Entry<BigInteger, BigInteger>[] coordinates,
-                                       final int startPos,
-                                       final int len,
-                                       final Map.Entry<BigInteger, BigInteger>[] result,
-                                       final BigInteger expectedSecret,
-                                       final BigInteger prime) {
+  private static long shareCombinations(final Map.Entry<BigInteger, BigInteger>[] coordinates,
+                                        final int startPos,
+                                        final int len,
+                                        final Map.Entry<BigInteger, BigInteger>[] result,
+                                        final BigInteger expectedSecret,
+                                        final BigInteger prime) {
     if (len == 0) {
       validateReconstruction(expectedSecret, prime, result);
       return 1;
     }
-    int numSubSets = 0;
+    long numSubSets = 0;
     for (int i = startPos; i <= coordinates.length - len; i++) {
       result[result.length - len] = coordinates[i];
       numSubSets += shareCombinations(coordinates, i + 1, len - 1, result, expectedSecret, prime);

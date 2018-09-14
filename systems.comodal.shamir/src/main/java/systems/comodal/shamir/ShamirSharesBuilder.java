@@ -149,8 +149,8 @@ public final class ShamirSharesBuilder {
   }
 
   @SuppressWarnings("unchecked")
-  public int validateShareCombinations(final BigInteger[] shares) {
-    return Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares);
+  public void validateShareCombinations(final BigInteger[] shares) {
+    Shamir.validateShareCombinations(secrets[0], prime, secrets.length, shares);
   }
 
   @Override

@@ -128,13 +128,18 @@ public final class Shamir {
   }
 
   @SuppressWarnings("unchecked")
+  public static Map.Entry<BigInteger, BigInteger>[] createCoordinates(final BigInteger[] shares) {
+    return IntStream.range(0, shares.length)
+        .mapToObj(i -> Map.entry(BigInteger.valueOf(i + 1), shares[i]))
+        .toArray(Map.Entry[]::new);
+  }
+
+  @SuppressWarnings("unchecked")
   public static int validateShareCombinations(final BigInteger expectedSecret,
                                               final BigInteger prime,
                                               final int numRequiredShares,
                                               final BigInteger[] shares) {
-    final var coordinates = IntStream.range(0, shares.length)
-        .mapToObj(i -> Map.entry(BigInteger.valueOf(i + 1), shares[i]))
-        .toArray(Map.Entry[]::new);
+    final var coordinates = createCoordinates(shares);
     return Shamir.shareCombinations(coordinates, 0, numRequiredShares, new Map.Entry[numRequiredShares], expectedSecret, prime);
   }
 

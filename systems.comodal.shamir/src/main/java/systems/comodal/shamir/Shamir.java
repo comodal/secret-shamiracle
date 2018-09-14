@@ -15,6 +15,12 @@ public final class Shamir {
     return new ShamirSharesBuilder();
   }
 
+  public static BigInteger createMersennePrimeFromExponent(final int exponent) {
+    // https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes
+    // e.g. 13th Mersenne Prime has an exponent of 521.
+    return BigInteger.ONE.shiftLeft(exponent).subtract(BigInteger.ONE);
+  }
+
   public static BigInteger[] createSecrets(final Random secureRandom, final BigInteger prime, final int requiredShares) {
     final var secrets = new BigInteger[requiredShares];
     createSecrets(secureRandom, prime, secrets);

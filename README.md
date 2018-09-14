@@ -17,7 +17,7 @@
 * Prime:
   * Must be supplied directly, or indirectly as a [Mersenne Prime](https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes) exponent.
   * Must be larger than all secrets used.
-* SecureRandom: Defaults to `new SecureRandom()`
+* Random: Defaults to `new SecureRandom()`
 * Secret:
   * May be provided as a byte[] or a BigInteger to `initSecrets(secret)`.
   * Defaults to a random value in the range (0, prime) with a call to `initSecrets()`.

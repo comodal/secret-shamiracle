@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
 
+import static systems.comodal.shamir.Shamir.createMersennePrimeFromExponent;
 import static systems.comodal.shamir.Shamir.createSecret;
 
 public final class ShamirSharesBuilder {
@@ -45,9 +46,7 @@ public final class ShamirSharesBuilder {
   }
 
   public ShamirSharesBuilder mersennePrimeExponent(final int mersennePrimeExponent) {
-    // https://en.wikipedia.org/wiki/Mersenne_prime#List_of_known_Mersenne_primes
-    // e.g. 13th Mersenne Prime has an exponent of 521.
-    this.prime = BigInteger.ONE.shiftLeft(mersennePrimeExponent).subtract(BigInteger.ONE);
+    this.prime = createMersennePrimeFromExponent(mersennePrimeExponent);
     return this;
   }
 
@@ -141,7 +140,7 @@ public final class ShamirSharesBuilder {
   public BigInteger[] createShares() {
     return Shamir.createShares(prime, secrets, validateNumShares());
   }
-  
+
   private int validateNumShares() {
     if (numShares > 0) {
       return numShares;

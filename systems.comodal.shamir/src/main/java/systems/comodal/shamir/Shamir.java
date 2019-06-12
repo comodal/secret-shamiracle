@@ -129,6 +129,50 @@ public final class Shamir {
     return freeCoefficient;
   }
 
+  public static BigInteger reconstructSecret(final Iterable<Map.Entry<BigInteger, BigInteger>> coordinateEntries) {
+    var freeCoefficient = BigInteger.ZERO;
+    BigInteger referencePosition, position;
+    BigInteger numerator, denominator;
+
+    for (final var referencePoint : coordinateEntries) {
+      numerator = denominator = BigInteger.ONE;
+      referencePosition = referencePoint.getKey();
+      for (final var point : coordinateEntries) {
+        position = point.getKey();
+        if (referencePosition.equals(position)) {
+          continue;
+        }
+        numerator = numerator.multiply(position.negate());
+        denominator = denominator.multiply(referencePosition.subtract(position));
+      }
+      freeCoefficient = freeCoefficient.add(referencePoint.getValue().multiply(numerator).multiply(denominator));
+    }
+    return freeCoefficient;
+  }
+
+  private static BigInteger reconstructSecret(final Map.Entry<BigInteger, BigInteger>[] coordinates) {
+    var freeCoefficient = BigInteger.ZERO;
+    Map.Entry<BigInteger, BigInteger> referencePoint;
+    BigInteger position;
+    BigInteger numerator, denominator;
+
+    final int numPoints = coordinates.length;
+    for (int i = 0; i < numPoints; i++) {
+      numerator = denominator = BigInteger.ONE;
+      referencePoint = coordinates[i];
+      for (int j = 0; j < numPoints; j++) {
+        if (i == j) {
+          continue;
+        }
+        position = coordinates[j].getKey();
+        numerator = numerator.multiply(position.negate());
+        denominator = denominator.multiply(referencePoint.getKey().subtract(position));
+      }
+      freeCoefficient = freeCoefficient.add(referencePoint.getValue().multiply(numerator).multiply(denominator));
+    }
+    return freeCoefficient;
+  }
+
   @SuppressWarnings("unchecked")
   public static Map.Entry<BigInteger, BigInteger>[] createCoordinates(final BigInteger[] shares) {
     return IntStream.range(0, shares.length)

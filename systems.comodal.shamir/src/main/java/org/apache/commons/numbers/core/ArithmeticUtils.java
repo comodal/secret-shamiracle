@@ -21,11 +21,12 @@ import java.text.MessageFormat;
 /**
  * Some useful, arithmetics related, additions to the built-in functions in
  * {@link Math}.
- *
  */
 public final class ArithmeticUtils {
 
-  /** Private constructor. */
+  /**
+   * Private constructor.
+   */
   private ArithmeticUtils() {
     super();
   }
@@ -38,34 +39,31 @@ public final class ArithmeticUtils {
    * <br>
    * Special cases:
    * <ul>
-   *  <li>The invocations
-   *   {@code gcd(Integer.MIN_VALUE, Integer.MIN_VALUE)},
-   *   {@code gcd(Integer.MIN_VALUE, 0)} and
-   *   {@code gcd(0, Integer.MIN_VALUE)} throw an
-   *   {@code ArithmeticException}, because the result would be 2^31, which
-   *   is too large for an int value.</li>
-   *  <li>The result of {@code gcd(x, x)}, {@code gcd(0, x)} and
-   *   {@code gcd(x, 0)} is the absolute value of {@code x}, except
-   *   for the special cases above.</li>
-   *  <li>The invocation {@code gcd(0, 0)} is the only one which returns
-   *   {@code 0}.</li>
+   * <li>The invocations
+   * {@code gcd(Integer.MIN_VALUE, Integer.MIN_VALUE)},
+   * {@code gcd(Integer.MIN_VALUE, 0)} and
+   * {@code gcd(0, Integer.MIN_VALUE)} throw an
+   * {@code ArithmeticException}, because the result would be 2^31, which
+   * is too large for an int value.</li>
+   * <li>The result of {@code gcd(x, x)}, {@code gcd(0, x)} and
+   * {@code gcd(x, 0)} is the absolute value of {@code x}, except
+   * for the special cases above.</li>
+   * <li>The invocation {@code gcd(0, 0)} is the only one which returns
+   * {@code 0}.</li>
    * </ul>
    *
    * @param p Number.
    * @param q Number.
    * @return the greatest common divisor (never negative).
    * @throws ArithmeticException if the result cannot be represented as
-   * a non-negative {@code int} value.
+   *                             a non-negative {@code int} value.
    */
-  public static int gcd(int p, int q) {
+  public static int gcd(final int p, final int q) {
     int a = p;
     int b = q;
-    if (a == 0 ||
-        b == 0) {
-      if (a == Integer.MIN_VALUE ||
-          b == Integer.MIN_VALUE) {
-        throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31",
-            p, q);
+    if (a == 0 || b == 0) {
+      if (a == Integer.MIN_VALUE || b == Integer.MIN_VALUE) {
+        throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31", p, q);
       }
       return Math.abs(a + b);
     }
@@ -74,7 +72,7 @@ public final class ArithmeticUtils {
     long bl = b;
     boolean useLong = false;
     if (a < 0) {
-      if(Integer.MIN_VALUE == a) {
+      if (Integer.MIN_VALUE == a) {
         useLong = true;
       } else {
         a = -a;
@@ -90,17 +88,15 @@ public final class ArithmeticUtils {
       bl = -bl;
     }
     if (useLong) {
-      if(al == bl) {
-        throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31",
-            p, q);
+      if (al == bl) {
+        throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31", p, q);
       }
       long blbu = bl;
       bl = al;
       al = blbu % al;
       if (al == 0) {
         if (bl > Integer.MAX_VALUE) {
-          throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31",
-              p, q);
+          throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31", p, q);
         }
         return (int) bl;
       }
@@ -124,10 +120,10 @@ public final class ArithmeticUtils {
    * <br/>
    * Special cases:
    * <ul>
-   *  <li>The result of {@code gcd(x, x)}, {@code gcd(0, x)} and
-   *   {@code gcd(x, 0)} is the value of {@code x}.</li>
-   *  <li>The invocation {@code gcd(0, 0)} is the only one which returns
-   *   {@code 0}.</li>
+   * <li>The result of {@code gcd(x, x)}, {@code gcd(0, x)} and
+   * {@code gcd(x, 0)} is the value of {@code x}.</li>
+   * <li>The invocation {@code gcd(0, 0)} is the only one which returns
+   * {@code 0}.</li>
    * </ul>
    *
    * @param a Positive number.
@@ -137,8 +133,7 @@ public final class ArithmeticUtils {
   private static int gcdPositive(int a, int b) {
     if (a == 0) {
       return b;
-    }
-    else if (b == 0) {
+    } else if (b == 0) {
       return a;
     }
 
@@ -176,9 +171,9 @@ public final class ArithmeticUtils {
    * @param b Factor.
    * @return the product {@code a * b}.
    * @throws ArithmeticException if the result can not be represented
-   * as a {@code long}.
+   *                             as a {@code long}.
    */
-  public static long mulAndCheck(long a, long b) {
+  public static long mulAndCheck(final long a, final long b) {
     long ret;
     if (a > b) {
       // use symmetry to reduce boundary cases
@@ -224,10 +219,14 @@ public final class ArithmeticUtils {
   /**
    * Exception.
    */
-  private static class NumbersArithmeticException extends ArithmeticException {
-    /** Serializable version Id. */
+  private static final class NumbersArithmeticException extends ArithmeticException {
+    /**
+     * Serializable version Id.
+     */
     private static final long serialVersionUID = 20180130L;
-    /** Argument to construct a message. */
+    /**
+     * Argument to construct a message.
+     */
     private final Object[] formatArguments;
 
     /**
@@ -241,15 +240,17 @@ public final class ArithmeticUtils {
      * Constructor with a specific message.
      *
      * @param message Message pattern providing the specific context of
-     * the error.
-     * @param args Arguments.
+     *                the error.
+     * @param args    Arguments.
      */
-    NumbersArithmeticException(String message, Object ... args) {
+    NumbersArithmeticException(String message, Object... args) {
       super(message);
       this.formatArguments = args;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getMessage() {
       return MessageFormat.format(super.getMessage(), formatArguments);

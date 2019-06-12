@@ -3,10 +3,12 @@ apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'pl.allegro.tech.build.axion-release'
+apply plugin: 'org.javamodularity.moduleplugin'
 
 scmVersion {
   tag {
     prefix = project.name
+    serialize = {config, version -> version}
   }
   repository {
     if (project.hasProperty("AXION_RELEASE_GITHUB_TOKEN")) {
@@ -19,7 +21,7 @@ scmVersion {
 project.version = scmVersion.version
 project.group = 'systems.comodal'
 
-sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_12
 
 ext {
   desc = 'Shamir Secret Sharing'
@@ -47,31 +49,16 @@ compileJava {
   }
 }
 
-compileTestJava {
-  inputs.property("moduleName", moduleName)
-  doFirst {
-    options.compilerArgs = [
-        '--module-path', classpath.asPath,
-        '--add-modules', 'org.junit.jupiter.api',
-        '--add-reads', "$moduleName=org.junit.jupiter.api",
-        '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath
-    ]
-    classpath = files()
-  }
-}
-
 test {
   useJUnitPlatform()
-  inputs.property("moduleName", moduleName)
-  doFirst {
-    jvmArgs = [
-        '--module-path', classpath.asPath,
-        '--add-modules', 'ALL-MODULE-PATH',
-        '--add-reads', "$moduleName=org.junit.jupiter.api",
-        '--patch-module', "$moduleName=" + files(sourceSets.test.java.outputDir).asPath,
-        '--add-opens', "$moduleName/systems.comodal.shamir=org.junit.platform.commons"
-    ]
-    classpath = files()
+  maxParallelForks = 4
+  testLogging {
+    events "passed", "skipped", "failed", "standardOut", "standardError"
+    exceptionFormat "full"
+    showStandardStreams true
+  }
+  moduleOptions {
+    runOnClasspath = true
   }
 }
 
@@ -86,20 +73,20 @@ jacocoTestReport {
     html.enabled false
   }
   afterEvaluate {
-    classDirectories = files(classDirectories.files.collect {
+    classDirectories.setFrom(files(classDirectories.files.collect {
       fileTree(dir: it, exclude: '**/apache/**')
-    })
+    }))
   }
 }
 
 afterEvaluate {
   task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
   }
 
   task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
   }
 

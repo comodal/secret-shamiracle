@@ -8,12 +8,42 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.math.BigInteger.valueOf;
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class ShamirShareTest {
+
+  @Test
+  void testSSS() {
+    final var secret = "my secret root password";
+    final var sharesBuilder = Shamir.buildShares()
+        .mersennePrimeExponent(521)
+        .numRequiredShares(3).numShares(5)
+        .initSecrets(secret.getBytes(US_ASCII));
+
+    sharesBuilder.validatePrime();
+    assertNotNull(sharesBuilder.getSecret());
+    assertEquals(3, sharesBuilder.getNumRequiredShares());
+    assertEquals(5, sharesBuilder.getNumShares());
+    validateToString(sharesBuilder);
+
+    final BigInteger[] shares = sharesBuilder.createShares();
+    sharesBuilder.validateShareCombinations(shares);
+
+    final var coordinates = ThreadLocalRandom.current().ints(0, sharesBuilder.getNumShares())
+        .distinct()
+        .mapToObj(i -> Map.entry(valueOf(i + 1), shares[i]))
+        .limit(3)
+        .collect(Collectors.toList());
+
+    final var secretString = new String(Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime()).toByteArray(), US_ASCII);
+    assertEquals(secret, secretString);
+  }
 
   @Test
   void testShareCreationAndReconstruction() {
@@ -96,7 +126,7 @@ final class ShamirShareTest {
 
   @Test
   void testInvalidSecret() {
-    final var prime = BigInteger.valueOf(2147483647L);
+    final var prime = valueOf(2147483647L);
     final var sharesBuilder = Shamir.buildShares()
         .prime(prime)
         .numRequiredShares(3)
@@ -120,7 +150,7 @@ final class ShamirShareTest {
 
   @Test
   void testInvalidPrimes() {
-    final var invalidPrime = BigInteger.valueOf(2147483647L - 1);
+    final var invalidPrime = valueOf(2147483647L - 1);
     final var sharesBuilder = Shamir.buildShares()
         .prime(invalidPrime)
         .numRequiredShares(2)
@@ -186,7 +216,7 @@ final class ShamirShareTest {
   void testStaticShamirMethods() {
     final var secureRandom = new SecureRandom();
 
-    final var prime = BigInteger.valueOf(73_939_133);
+    final var prime = valueOf(73_939_133);
     assertTrue(prime.isProbablePrime(Integer.MAX_VALUE));
 
     final int numRequired = 3;
@@ -241,7 +271,7 @@ final class ShamirShareTest {
     sharesBuilder.validateShareCombinations(shares);
 
     IntStream.range(0, sharesBuilder.getNumRequiredShares())
-        .forEach(i -> coordinates.put(BigInteger.valueOf(i + 1), shares[i]));
+        .forEach(i -> coordinates.put(valueOf(i + 1), shares[i]));
     final var reconstructedSecret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
 
     assertEquals(expectedSecret, reconstructedSecret);
@@ -270,9 +300,9 @@ final class ShamirShareTest {
     sharesBuilder.validateShareCombinations(shares);
 
     var coordinates = Map.of(
-        BigInteger.valueOf(1), shares[0],
-        BigInteger.valueOf(3), shares[2],
-        BigInteger.valueOf(5), shares[4]
+        valueOf(1), shares[0],
+        valueOf(3), shares[2],
+        valueOf(5), shares[4]
     );
     var secret = Shamir.reconstructSecret(coordinates, sharesBuilder.getPrime());
     var secretString = new String(secret.toByteArray(), UTF_8);

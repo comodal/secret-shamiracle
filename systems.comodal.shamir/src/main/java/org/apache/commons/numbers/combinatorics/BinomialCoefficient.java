@@ -27,7 +27,7 @@ import java.text.MessageFormat;
  * It is "{@code n choose k}", the number of {@code k}-element subsets that
  * can be selected from an {@code n}-element set.
  */
-public class BinomialCoefficient {
+public final class BinomialCoefficient {
   /**
    * Computes de binomial coefficient.
    * The largest value of {@code n} for which all coefficients can
@@ -41,15 +41,13 @@ public class BinomialCoefficient {
    * @throws ArithmeticException      if the result is too large to be
    *                                  represented by a {@code long}.
    */
-  public static long value(int n, int k) {
+  public static long value(final int n, final int k) {
     checkBinomial(n, k);
 
-    if (n == k ||
-        k == 0) {
+    if (n == k || k == 0) {
       return 1;
     }
-    if (k == 1 ||
-        k == n - 1) {
+    if (k == 1 || k == n - 1) {
       return n;
     }
     // Use symmetry for large k.
@@ -108,8 +106,7 @@ public class BinomialCoefficient {
    * @throws IllegalArgumentException if {@code n < 0}.
    * @throws IllegalArgumentException if {@code k > n} or {@code k < 0}.
    */
-  private static void checkBinomial(int n,
-                                    int k) {
+  private static void checkBinomial(final int n, final int k) {
     if (n < 0) {
       throw new IllegalArgumentException(MessageFormat.format("Number {0} is negative", n));
     }

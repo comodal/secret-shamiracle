@@ -6,16 +6,8 @@ apply plugin: 'pl.allegro.tech.build.axion-release'
 apply plugin: 'org.javamodularity.moduleplugin'
 
 scmVersion {
-  tag {
-    prefix = project.name
-    serialize = {config, version -> version}
-  }
-  repository {
-    if (project.hasProperty("AXION_RELEASE_GITHUB_TOKEN")) {
-      customUsername = project.AXION_RELEASE_GITHUB_TOKEN
-    }
-    pushTagsOnly = true
-  }
+  tag.prefix = ''
+  repository.pushTagsOnly = true
 }
 
 project.version = scmVersion.version
